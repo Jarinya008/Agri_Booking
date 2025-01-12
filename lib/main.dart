@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       // home: Loginp(),
       home: LoginPage(),
+      //home: LoginPage(),
     );
   }
 }

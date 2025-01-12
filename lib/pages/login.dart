@@ -1,3 +1,4 @@
+import 'package:app_agri_booking/pages/Toobar.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -108,6 +109,7 @@ class LoginPage extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: Toobar(), // เรียกใช้ Toobar ที่สร้างแยก
     );
   }
 }
