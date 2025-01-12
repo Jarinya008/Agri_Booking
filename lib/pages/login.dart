@@ -22,6 +22,11 @@ class _LoginPageState extends State<LoginPage> {
     final String username = _usernameController.text;
     final String password = _passwordController.text;
 
+    // ตรวจสอบว่าผู้ใช้ใส่อีเมลหรือชื่อผู้ใช้
+    final bool isEmail =
+        RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+            .hasMatch(username);
+
     final response = await http.post(
       Uri.parse('https://agri-api-glxi.onrender.com/login'),
       body: {
@@ -35,7 +40,6 @@ class _LoginPageState extends State<LoginPage> {
 
       // เช็ค mtype ของผู้ใช้
       int mtype = data['mtype'];
-
       if (mtype == 0 || mtype == 1) {
         _showUserTypeDialog(mtype); // แสดงป๊อปอัปถามผู้ใช้ก่อน
       } else {
@@ -124,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange[200], // สีพื้นหลัง
+      backgroundColor: Color.fromARGB(255, 244, 214, 169), // สีพื้นหลัง
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
