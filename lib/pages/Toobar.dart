@@ -7,8 +7,8 @@ class Toobar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.orange[300], // สีพื้นหลัง
-      padding: const EdgeInsets.symmetric(vertical: 10), // ระยะห่างบน-ล่าง
-      child: const Row(
+      padding: EdgeInsets.symmetric(vertical: 10), // ระยะห่างบน-ล่าง
+      child: Row(
         mainAxisAlignment:
             MainAxisAlignment.spaceAround, // จัดตำแหน่งไอคอนให้กระจายทั่วแถว
         children: [
