@@ -36,47 +36,38 @@ class _RegisterState extends State<Register> {
       'email': emailController.text,
       'password': passwordController.text,
       'phone': phoneController.text,
-      'image': profileImage ?? '', // หากไม่มีรูปให้ส่งค่าว่าง
+      'image': 'profile.jpg', // ใช้ชื่อไฟล์ที่ถูกต้องหรือ URL ของรูปภาพ
+      'contact': 'john@example.com', // เพิ่มข้อมูลติดต่อ
+      'address': '123 Main St, Bangkok', // เพิ่มที่อยู่
+      'lat': 13.7563, // เพิ่มค่าละติจูด
+      'lng': 100.5018, // เพิ่มค่าลองติจูด
       'mtype': selectedMtype,
     };
 
+    print('Data being sent: $data');
     try {
-      // เรียกใช้ API
       final response = await http.post(
-        Uri.parse(
-            'https://agri-api-glxi.onrender.com/register'), // แทนที่ด้วย URL ของ API
+        Uri.parse('https://agri-api-glxi.onrender.com/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
 
       if (response.statusCode == 201) {
-        // สมัครสมาชิกสำเร็จ
         final responseData = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(responseData['message'] ?? 'สมัครสมาชิกสำเร็จ')),
-        );
-        // รีเซ็ตฟอร์มหรือเปลี่ยนหน้า
-        usernameController.clear();
-        emailController.clear();
-        passwordController.clear();
-        phoneController.clear();
-        setState(() {
-          selectedMtype = null;
-          profileImage = null;
-        });
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(responseData['message'] ?? 'สมัครสมาชิกสำเร็จ')));
+        // รีเซ็ตฟอร์ม
       } else {
-        // เกิดข้อผิดพลาด
         final responseData = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(responseData['message'] ?? 'เกิดข้อผิดพลาด')),
-        );
+        print('Response: ${responseData['message']}');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(responseData['message'] ?? 'เกิดข้อผิดพลาด')));
       }
     } catch (e) {
-      // จัดการข้อผิดพลาดในการเชื่อมต่อ
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้')),
       );
+      print('Error: $e');
     }
   }
 
@@ -131,7 +122,7 @@ class _RegisterState extends State<Register> {
                   // กดเพื่ออัปโหลดรูปภาพ (ทำ Mock สำหรับตอนนี้)
                   setState(() {
                     profileImage =
-                        'assets/profile_placeholder.png'; // สมมติใส่รูปแทนที่
+                        'assets/images/beginprofile.png'; // สมมติใส่รูปแทนที่
                   });
                 },
                 child: CircleAvatar(

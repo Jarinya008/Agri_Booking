@@ -1,4 +1,5 @@
 import 'package:app_agri_booking/pages/login.dart';
+import 'package:app_agri_booking/pages/register.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -14,8 +15,8 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       //theme: ThemeData(useMaterial3: false),
       title: 'Flutter Demo',
-      // home: Loginp(),
-      home: LoginPage(),
+      home: Register(),
+      //home: LoginPage(),
       //home: LoginPage(),
     );
   }
