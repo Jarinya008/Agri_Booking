@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:app_agri_booking/pages/Client/Home.dart';
 import 'package:app_agri_booking/pages/Contractor/Home.dart';
 import 'package:app_agri_booking/pages/Toobar.dart';
+import 'package:app_agri_booking/pages/register.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -36,9 +37,8 @@ class _LoginPageState extends State<LoginPage> {
       int mtype = data['mtype'];
 
       if (mtype == 0 || mtype == 1) {
-        _navigateToHomePage(mtype); // นำทางไปยังหน้าที่เหมาะสมตาม mtype
+        _showUserTypeDialog(mtype); // แสดงป๊อปอัปถามผู้ใช้ก่อน
       } else {
-        // หาก mtype ไม่ใช่ 0 หรือ 1
         _showErrorDialog('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
     } else {
@@ -46,7 +46,36 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ ตาม mtype
+// ฟังก์ชันสำหรับแสดงป๊อปอัปถามผู้ใช้ว่าอยากเข้าสู่ระบบในฐานะอะไร
+  void _showUserTypeDialog(int mtype) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('เลือกประเภทผู้ใช้'),
+          content: Text(
+              'คุณต้องการเข้าสู่ระบบในฐานะ ${mtype == 0 ? "Contractor" : "Client"} หรือไม่?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('ยกเลิก'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _navigateToHomePage(mtype); // หากผู้ใช้เลือก ยืนยัน
+              },
+              child: const Text('ยืนยัน'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+// ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ ตาม mtype
   void _navigateToHomePage(int mtype) {
     if (mtype == 0) {
       Navigator.pushReplacement(
@@ -79,6 +108,16 @@ class _LoginPageState extends State<LoginPage> {
           ],
         );
       },
+    );
+  }
+
+//ไปยังหน้าสมัครสมาชิก
+  void navigateToRegister() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const Register(),
+      ),
     );
   }
 
@@ -166,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextButton(
-                          onPressed: () {},
+                          onPressed: navigateToRegister,
                           style: TextButton.styleFrom(
                             foregroundColor: Colors.black,
                           ),
