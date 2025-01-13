@@ -8,7 +8,7 @@ class HomeUserAllPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('หน้าเปล่า'),
+        title: const Text('ผู้ใช้ทั่วไป'),
       ),
       body: const Center(
         child: Text(
