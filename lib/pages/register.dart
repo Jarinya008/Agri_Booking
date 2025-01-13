@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:app_agri_booking/pages/Contractor/MyCars.dart';
 import 'package:app_agri_booking/pages/Client/InsertFarm.dart';
-import 'package:app_agri_booking/pages/map.dart';
+import 'package:app_agri_booking/pages/map.dart'; // Import the map page
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -24,6 +25,72 @@ class _RegisterState extends State<Register> {
 
   double? lat;
   double? lng;
+
+  Future<void> _openMapDialog() async {
+    LatLng? selectedLocation = await showDialog<LatLng>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('เลือกตำแหน่ง'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: StatefulBuilder(
+              builder: (context, setDialogState) {
+                LatLng initialLocation =
+                    LatLng(lat ?? 13.7563, lng ?? 100.5018);
+                return GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target:
+                        initialLocation, // Use the previously selected location or the default
+                    zoom: 12,
+                  ),
+                  mapType: MapType.normal,
+                  onTap: (LatLng location) {
+                    setDialogState(() {
+                      lat = location.latitude;
+                      lng = location.longitude; // Update the selected location
+                    });
+                  },
+                  markers: lat != null && lng != null
+                      ? {
+                          Marker(
+                            markerId: const MarkerId('selected_location'),
+                            position: LatLng(lat!, lng!),
+                          )
+                        }
+                      : {},
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                    context); // Close the dialog without selecting a location
+              },
+              child: const Text('ยกเลิก'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context,
+                    LatLng(lat!, lng!)); // Return the selected location
+              },
+              child: const Text('ยืนยัน'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (selectedLocation != null) {
+      setState(() {
+        lat = selectedLocation.latitude;
+        lng = selectedLocation.longitude;
+      });
+    }
+  }
 
   Future<void> _registerUser() async {
     if (selectedMtype == null ||
@@ -86,22 +153,6 @@ class _RegisterState extends State<Register> {
     }
   }
 
-  void _navigateToMapPage() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MapPage(
-          onLocationSelected: (double lat, double lng) {
-            setState(() {
-              this.lat = lat;
-              this.lng = lng;
-            });
-          },
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,200 +161,108 @@ class _RegisterState extends State<Register> {
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context)
-                  .size
-                  .height, // อย่างน้อยเท่ากับความสูงหน้าจอ
-            ),
-            child: IntrinsicHeight(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      profileImage =
+                          'assets/images/beginprofile.png'; // Placeholder profile image
+                    });
+                  },
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage:
+                        profileImage != null ? AssetImage(profileImage!) : null,
+                    child: profileImage == null
+                        ? const Icon(Icons.person,
+                            size: 50, color: Color.fromARGB(255, 135, 241, 169))
+                        : null,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: usernameController,
+                decoration: const InputDecoration(
+                    labelText: 'ชื่อผู้ใช้', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                    labelText: 'อีเมล', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                    labelText: 'รหัสผ่าน', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.number,
+                maxLength: 10,
+                decoration: const InputDecoration(
+                    labelText: 'เบอร์โทร', border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: contractController,
+                decoration: const InputDecoration(
+                    labelText: 'ข้อมูลติดต่อเพิ่มเติม',
+                    border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _openMapDialog,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 250, 231, 87)),
+                child: const Text('เลือกตำแหน่ง GPS'),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'ตำแหน่งที่เลือก: ${lat ?? 'ไม่ระบุ'}, ${lng ?? 'ไม่ระบุ'}',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: addrassController,
+                decoration: const InputDecoration(
+                    labelText: 'ที่อยู่',
+                    hintText: 'เช่น บ้านเลขที่ ชื่อหมู่บ้าน ถนน ลักษณะเด่น',
+                    border: OutlineInputBorder()),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const SizedBox(height: 20),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        // กดเพื่ออัปโหลดรูปภาพ (ทำ Mock สำหรับตอนนี้)
-                        setState(() {
-                          profileImage =
-                              'assets/images/beginprofile.png'; // สมมติใส่รูปแทนที่
-                        });
-                      },
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage: profileImage != null
-                            ? AssetImage(profileImage!)
-                            : null,
-                        child: profileImage == null
-                            ? const Icon(Icons.person,
-                                size: 50,
-                                color: Color.fromARGB(255, 135, 241, 169))
-                            : null,
-                      ),
-                    ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Go back to the previous page
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 255, 0, 0)),
+                    child: const Text('ยกเลิก',
+                        style: TextStyle(color: Colors.white)),
                   ),
-                  const Text(
-                    'เลือกประเภทผู้ใช้งาน',
-                    style:
-                        TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  ElevatedButton(
+                    onPressed: _registerUser,
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 68, 255, 78)),
+                    child: const Text('สมัครสมาชิก',
+                        style: TextStyle(color: Colors.black)),
                   ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => setState(() {
-                            selectedMtype = 0;
-                          }),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: selectedMtype == 0
-                                ? Color.fromARGB(255, 93, 177, 97)
-                                : Color.fromARGB(255, 25, 92, 49),
-                          ),
-                          child: const Text(
-                            'เจ้าของรถ',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => setState(() {
-                            selectedMtype = 1;
-                          }),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: selectedMtype == 1
-                                ? Color.fromARGB(255, 93, 177, 97)
-                                : Color.fromARGB(255, 25, 92, 49),
-                          ),
-                          child: const Text(
-                            'ผู้จ้าง',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: usernameController,
-                    decoration: const InputDecoration(
-                      labelText: 'ชื่อผู้ใช้',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'อีเมล',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'รหัสผ่าน',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: phoneController,
-                    keyboardType:
-                        TextInputType.number, // ตั้งค่าแป้นพิมพ์เป็นตัวเลข
-                    maxLength: 10, // จำกัดความยาวสูงสุดที่ 10 ตัวอักษร
-                    decoration: const InputDecoration(
-                      labelText: 'เบอร์โทร',
-                      hintText: 'กรุณากรอกเบอร์โทร 10 หลัก', // ข้อความแนะนำ
-                      border: OutlineInputBorder(),
-                      counterText: '', // ซ่อนตัวนับข้อความ
-                    ),
-                    // onChanged: (value) {
-                    //   if (value.length != 10) {
-                    //     // แสดงคำเตือนเมื่อจำนวนตัวเลขไม่ครบ 10 ตัว
-                    //     ScaffoldMessenger.of(context).showSnackBar(
-                    //       const SnackBar(
-                    //         content: Text('เบอร์โทรต้องมี 10 หลัก'),
-                    //       ),
-                    //     );
-                    //   }
-                    // },
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: contractController,
-                    decoration: const InputDecoration(
-                      labelText: 'ข้อมูลติดต่อเพิ่มเติม',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    height: 50, // กำหนดความสูงของปุ่ม
-                    width: 100, // กำหนดให้ปุ่มขยายเต็มความกว้าง
-                    child: ElevatedButton(
-                      onPressed: _navigateToMapPage,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 250, 231, 87),
-                      ),
-                      child: const Text(
-                        'GPS',
-                        style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: addrassController,
-                    decoration: const InputDecoration(
-                      labelText: 'ที่อยู่',
-                      hintText:
-                          'เช่น บ้านเลขที่ ชื่อหมู่บ้าน ถนน ลักษณะเด่น', // ข้อความจางๆ
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly, // จัดให้ปุ่มอยู่ข้างกัน
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context); // กลับไปหน้าก่อนหน้า
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                              255, 255, 0, 0), // สีของปุ่ม "ยกเลิก"
-                        ),
-                        child: const Text(
-                          'ยกเลิก',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 255, 255, 255)),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed:
-                            _registerUser, // เรียกฟังก์ชันเมื่อกดปุ่ม "สมัครสมาชิก"
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 68, 255,
-                              78), // กำหนดสีพื้นหลังของปุ่มเป็นสีเขียว
-                        ),
-                        child: const Text('สมัครสมาชิก',
-                            style:
-                                TextStyle(color: Color.fromARGB(255, 0, 0, 0))),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
                 ],
               ),
-            ),
+              const SizedBox(height: 20),
+            ],
           ),
         ));
   }
