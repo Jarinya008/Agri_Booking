@@ -7,7 +7,19 @@ class HomeUserAllPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
       backgroundColor: const Color.fromARGB(255, 244, 214, 169),
+=======
+      appBar: AppBar(
+        title: const Text('ผู้ใช้ทั่วไป'),
+      ),
+      body: const Center(
+        child: Text(
+          'หน้าแรกผู้ใช้ทั่วไป', // ใส่ข้อความที่ต้องการแสดงที่นี่
+          style: TextStyle(fontSize: 24),
+        ),
+      ),
+>>>>>>> whan
       bottomNavigationBar: const Toobar(),
       body: Column(
         children: [
