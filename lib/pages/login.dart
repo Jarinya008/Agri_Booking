@@ -18,10 +18,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   // ฟังก์ชันสำหรับตรวจสอบการเข้าสู่ระบบ
+  // ฟังก์ชันสำหรับตรวจสอบการเข้าสู่ระบบ
   Future<void> _login() async {
-    final String username = _usernameController.text;
+    final String usernameOrEmail = _usernameController.text;
     final String password = _passwordController.text;
 
+<<<<<<< HEAD
     // ตรวจสอบว่าผู้ใช้ใส่อีเมลหรือชื่อผู้ใช้
     final bool isEmail =
         RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
@@ -34,19 +36,65 @@ class _LoginPageState extends State<LoginPage> {
         'password': password,
       },
     );
+=======
+    // ตรวจสอบว่าเป็นอีเมลหรือไม่
+    bool isEmail = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(usernameOrEmail);
+>>>>>>> whan
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
+    final Map<String, dynamic> data = {
+      if (isEmail) 'email': usernameOrEmail,
+      if (!isEmail) 'username': usernameOrEmail,
+      'password': password,
+    };
 
+<<<<<<< HEAD
       // เช็ค mtype ของผู้ใช้
       int mtype = data['mtype'];
       if (mtype == 0 || mtype == 1) {
         _showUserTypeDialog(mtype); // แสดงป๊อปอัปถามผู้ใช้ก่อน
+=======
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.215.78:3001/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        // ตรวจสอบว่า response มี users และข้อมูลใน users
+        if (responseData.containsKey('users') &&
+            responseData['users'] is List &&
+            responseData['users'].isNotEmpty) {
+          final List<dynamic> users = responseData['users']; // ดึงผู้ใช้ทั้งหมด
+          print('Users fetched: $users');
+
+          // ตัวอย่าง: แสดงชื่อผู้ใช้ทั้งหมดใน Console
+          for (var user in users) {
+            print('User: ${user['username']}, mtype: ${user['mtype']}');
+          }
+
+          final int rowCount = responseData['rowCount'];
+
+          if (rowCount == 1) {
+            // กรณีมีผู้ใช้เพียงคนเดียว
+            final int mtype = users[0]['mtype'];
+            _navigateToHomePage(mtype); // นำทางไปหน้าผู้ใช้ประเภทนั้น
+          } else if (rowCount > 1) {
+            // กรณีมีผู้ใช้มากกว่าหนึ่งคน ให้เลือก mtype
+            _showUserSelectionDialog(users); // เปิด Dialog เพื่อเลือก mtype
+          }
+        } else {
+          _showErrorDialog('ข้อมูลการตอบกลับไม่สมบูรณ์');
+        }
+>>>>>>> whan
       } else {
-        _showErrorDialog('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+        final Map<String, dynamic> errorData = jsonDecode(response.body);
+        _showErrorDialog(errorData['message']);
       }
-    } else {
-      _showErrorDialog('เข้าสู่ระบบไม่สำเร็จ');
+    } catch (e) {
+      _showErrorDialog('เกิดข้อผิดพลาด: $e');
     }
   }
 
@@ -92,6 +140,46 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (context) => HomeClientPage()),
       );
     }
+  }
+
+  void _showUserSelectionDialog(List<dynamic> users) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('เลือกประเภทผู้ใช้'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: users.map((user) {
+                final String username = user['username'];
+                final int mtype = user['mtype'];
+
+                // แปลง mtype เป็นข้อความ
+                final String userType = mtype == 0 ? 'เจ้าของรถ' : 'ผู้จ้าง';
+
+                return ListTile(
+                  title: Text(username),
+                  subtitle: Text(userType), // แสดงประเภทผู้ใช้ในรูปแบบข้อความ
+                  onTap: () {
+                    Navigator.pop(context); // ปิด Dialog
+                    _navigateToHomePage(mtype); // ส่ง mtype และนำทาง
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // ปิด Dialog
+              },
+              child: Text('ยกเลิก'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // ฟังก์ชันสำหรับแสดงข้อความข้อผิดพลาด
