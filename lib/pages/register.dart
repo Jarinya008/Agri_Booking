@@ -185,6 +185,47 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
               ),
+              const Text(
+                'เลือกประเภทผู้ใช้งาน',
+                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => setState(() {
+                        selectedMtype = 0;
+                      }),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: selectedMtype == 0
+                            ? Color.fromARGB(255, 93, 177, 97)
+                            : Color.fromARGB(255, 25, 92, 49),
+                      ),
+                      child: const Text(
+                        'เจ้าของรถ',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => setState(() {
+                        selectedMtype = 1;
+                      }),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: selectedMtype == 1
+                            ? Color.fromARGB(255, 93, 177, 97)
+                            : Color.fromARGB(255, 25, 92, 49),
+                      ),
+                      child: const Text(
+                        'ผู้จ้าง',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 20),
               TextField(
                 controller: usernameController,
