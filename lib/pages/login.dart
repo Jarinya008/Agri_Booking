@@ -17,42 +17,21 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // ฟังก์ชันสำหรับตรวจสอบการเข้าสู่ระบบ
-  // ฟังก์ชันสำหรับตรวจสอบการเข้าสู่ระบบ
   Future<void> _login() async {
-    final String usernameOrEmail = _usernameController.text;
-    final String password = _passwordController.text;
+    final String usernameOrEmail = _usernameController.text.trim();
+    final String password = _passwordController.text.trim();
 
-<<<<<<< HEAD
-    // ตรวจสอบว่าผู้ใช้ใส่อีเมลหรือชื่อผู้ใช้
+    // ตรวจสอบรูปแบบว่าเป็นอีเมลหรือไม่
     final bool isEmail =
-        RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-            .hasMatch(username);
+        RegExp(r"^[^@]+@[^@]+\.[^@]+$").hasMatch(usernameOrEmail);
 
-    final response = await http.post(
-      Uri.parse('https://agri-api-glxi.onrender.com/login'),
-      body: {
-        'username': username,
-        'password': password,
-      },
-    );
-=======
-    // ตรวจสอบว่าเป็นอีเมลหรือไม่
-    bool isEmail = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(usernameOrEmail);
->>>>>>> whan
-
+    // เตรียมข้อมูลส่งไปยัง API
     final Map<String, dynamic> data = {
       if (isEmail) 'email': usernameOrEmail,
       if (!isEmail) 'username': usernameOrEmail,
       'password': password,
     };
 
-<<<<<<< HEAD
-      // เช็ค mtype ของผู้ใช้
-      int mtype = data['mtype'];
-      if (mtype == 0 || mtype == 1) {
-        _showUserTypeDialog(mtype); // แสดงป๊อปอัปถามผู้ใช้ก่อน
-=======
     try {
       final response = await http.post(
         Uri.parse('http://192.168.215.78:3001/login'),
@@ -63,81 +42,37 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
 
-        // ตรวจสอบว่า response มี users และข้อมูลใน users
         if (responseData.containsKey('users') &&
             responseData['users'] is List &&
             responseData['users'].isNotEmpty) {
-          final List<dynamic> users = responseData['users']; // ดึงผู้ใช้ทั้งหมด
-          print('Users fetched: $users');
+          final List<dynamic> users = responseData['users'];
 
-          // ตัวอย่าง: แสดงชื่อผู้ใช้ทั้งหมดใน Console
-          for (var user in users) {
-            print('User: ${user['username']}, mtype: ${user['mtype']}');
-          }
-
-          final int rowCount = responseData['rowCount'];
-
-          if (rowCount == 1) {
-            // กรณีมีผู้ใช้เพียงคนเดียว
-            final int mtype = users[0]['mtype'];
-            _navigateToHomePage(mtype); // นำทางไปหน้าผู้ใช้ประเภทนั้น
-          } else if (rowCount > 1) {
-            // กรณีมีผู้ใช้มากกว่าหนึ่งคน ให้เลือก mtype
-            _showUserSelectionDialog(users); // เปิด Dialog เพื่อเลือก mtype
+          if (users.length == 1) {
+            _navigateToHomePage(users[0]['mtype']);
+          } else {
+            _showUserSelectionDialog(users);
           }
         } else {
-          _showErrorDialog('ข้อมูลการตอบกลับไม่สมบูรณ์');
+          _showErrorDialog('ไม่พบข้อมูลผู้ใช้');
         }
->>>>>>> whan
       } else {
-        final Map<String, dynamic> errorData = jsonDecode(response.body);
-        _showErrorDialog(errorData['message']);
+        _showErrorDialog('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
       }
     } catch (e) {
       _showErrorDialog('เกิดข้อผิดพลาด: $e');
     }
   }
 
-// ฟังก์ชันสำหรับแสดงป๊อปอัปถามผู้ใช้ว่าอยากเข้าสู่ระบบในฐานะอะไร
-  void _showUserTypeDialog(int mtype) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('เลือกประเภทผู้ใช้'),
-          content: Text(
-              'คุณต้องการเข้าสู่ระบบในฐานะ ${mtype == 0 ? "Contractor" : "Client"} หรือไม่?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('ยกเลิก'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _navigateToHomePage(mtype); // หากผู้ใช้เลือก ยืนยัน
-              },
-              child: const Text('ยืนยัน'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-// ฟังก์ชันสำหรับนำทางไปยังหน้าต่างๆ ตาม mtype
   void _navigateToHomePage(int mtype) {
     if (mtype == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeContractorPage()),
+        MaterialPageRoute(builder: (context) => const HomeContractorPage()),
       );
     } else if (mtype == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeClientPage()),
+        MaterialPageRoute(builder: (context) => const HomeClientPage()),
       );
     }
   }
@@ -147,34 +82,28 @@ class _LoginPageState extends State<LoginPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('เลือกประเภทผู้ใช้'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: users.map((user) {
-                final String username = user['username'];
-                final int mtype = user['mtype'];
+          title: const Text('เลือกผู้ใช้'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: users.map((user) {
+              final String username = user['username'];
+              final int mtype = user['mtype'];
+              final String userType = mtype == 0 ? 'เจ้าของรถ' : 'ผู้จ้าง';
 
-                // แปลง mtype เป็นข้อความ
-                final String userType = mtype == 0 ? 'เจ้าของรถ' : 'ผู้จ้าง';
-
-                return ListTile(
-                  title: Text(username),
-                  subtitle: Text(userType), // แสดงประเภทผู้ใช้ในรูปแบบข้อความ
-                  onTap: () {
-                    Navigator.pop(context); // ปิด Dialog
-                    _navigateToHomePage(mtype); // ส่ง mtype และนำทาง
-                  },
-                );
-              }).toList(),
-            ),
+              return ListTile(
+                title: Text(username),
+                subtitle: Text(userType),
+                onTap: () {
+                  Navigator.pop(context);
+                  _navigateToHomePage(mtype);
+                },
+              );
+            }).toList(),
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context); // ปิด Dialog
-              },
-              child: Text('ยกเลิก'),
+              onPressed: () => Navigator.pop(context),
+              child: const Text('ยกเลิก'),
             ),
           ],
         );
@@ -182,7 +111,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // ฟังก์ชันสำหรับแสดงข้อความข้อผิดพลาด
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -190,11 +118,9 @@ class _LoginPageState extends State<LoginPage> {
         return AlertDialog(
           title: const Text('ข้อผิดพลาด'),
           content: Text(message),
-          actions: <Widget>[
+          actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: const Text('ปิด'),
             ),
           ],
@@ -203,7 +129,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-//ไปยังหน้าสมัครสมาชิก
   void navigateToRegister() {
     Navigator.push(
       context,
@@ -216,119 +141,51 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 244, 214, 169), // สีพื้นหลัง
+      backgroundColor: const Color.fromARGB(255, 244, 214, 169),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start, // จัดตำแหน่งเริ่มต้น
             children: [
-              // โลโก้และข้อความด้านบน
-              Column(
-                children: [
-                  const SizedBox(height: 30),
-                  Image.asset(
-                    'assets/images/Logo.png', // ใส่ path รูปภาพโลโก้
-                    width: 240,
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'เข้าสู่ระบบ',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
+              const SizedBox(height: 30),
+              Image.asset('assets/images/Logo.png', width: 240),
+              const SizedBox(height: 10),
+              const Text(
+                'เข้าสู่ระบบ',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-
-              // ฟอร์มการเข้าสู่ระบบ
+              const SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(20),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 5), // ขยับข้อความไปทางขวา
-                      child: Text(
-                        'ชื่อผู้ใช้ / email',
-                        style: TextStyle(
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
                     TextField(
                       controller: _usernameController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
+                        labelText: 'ชื่อผู้ใช้ / email',
                         filled: true,
-                        fillColor: Colors.grey[300],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 5),
-                      child: Text(
-                        'รหัสผ่าน',
-                        style: TextStyle(
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
                     TextField(
                       controller: _passwordController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
+                        labelText: 'รหัสผ่าน',
                         filled: true,
-                        fillColor: Colors.grey[300],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
                       ),
                       obscureText: true,
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: navigateToRegister,
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.black,
-                          ),
-                          child: const Text('สมัครสมาชิก'),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.black,
-                          ),
-                          child: const Text('ลืมรหัสผ่าน'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00BA00),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: const Text(
-                        'เข้าสู่ระบบ',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: const Text('เข้าสู่ระบบ'),
+                    ),
+                    TextButton(
+                      onPressed: navigateToRegister,
+                      child: const Text('สมัครสมาชิก'),
                     ),
                   ],
                 ),
@@ -337,7 +194,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-      bottomNavigationBar: const Toobar(), // เรียกใช้ Toobar ที่สร้างแยก
+      bottomNavigationBar: const Toobar(),
     );
   }
 }
