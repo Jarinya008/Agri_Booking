@@ -23,8 +23,23 @@ class _LoginPageState extends State<LoginPage> {
     final String usernameOrEmail = _usernameController.text;
     final String password = _passwordController.text;
 
+<<<<<<< HEAD
+    // ตรวจสอบว่าผู้ใช้ใส่อีเมลหรือชื่อผู้ใช้
+    final bool isEmail =
+        RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+            .hasMatch(username);
+
+    final response = await http.post(
+      Uri.parse('https://agri-api-glxi.onrender.com/login'),
+      body: {
+        'username': username,
+        'password': password,
+      },
+    );
+=======
     // ตรวจสอบว่าเป็นอีเมลหรือไม่
     bool isEmail = RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(usernameOrEmail);
+>>>>>>> whan
 
     final Map<String, dynamic> data = {
       if (isEmail) 'email': usernameOrEmail,
@@ -32,6 +47,12 @@ class _LoginPageState extends State<LoginPage> {
       'password': password,
     };
 
+<<<<<<< HEAD
+      // เช็ค mtype ของผู้ใช้
+      int mtype = data['mtype'];
+      if (mtype == 0 || mtype == 1) {
+        _showUserTypeDialog(mtype); // แสดงป๊อปอัปถามผู้ใช้ก่อน
+=======
     try {
       final response = await http.post(
         Uri.parse('http://192.168.215.78:3001/login'),
@@ -67,6 +88,7 @@ class _LoginPageState extends State<LoginPage> {
         } else {
           _showErrorDialog('ข้อมูลการตอบกลับไม่สมบูรณ์');
         }
+>>>>>>> whan
       } else {
         final Map<String, dynamic> errorData = jsonDecode(response.body);
         _showErrorDialog(errorData['message']);
@@ -194,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.orange[200], // สีพื้นหลัง
+      backgroundColor: Color.fromARGB(255, 244, 214, 169), // สีพื้นหลัง
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
