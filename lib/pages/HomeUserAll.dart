@@ -218,16 +218,16 @@ class HomeUserAllPage extends StatelessWidget {
 }
 
 // หน้ารายละเอียดเพิ่มเติม
-class DetailPage extends StatelessWidget {
-  const DetailPage({super.key});
+// class DetailPage extends StatelessWidget {
+//   const DetailPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('รายละเอียดเพิ่มเติม')),
-      body: const Center(
-        child: Text('นี่คือหน้ารายละเอียดเพิ่มเติม'),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: const Text('รายละเอียดเพิ่มเติม')),
+//       body: const Center(
+//         child: Text('นี่คือหน้ารายละเอียดเพิ่มเติม'),
+//       ),
+//     );
+//   }
+// }

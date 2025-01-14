@@ -1,3 +1,4 @@
+import 'package:app_agri_booking/pages/Client/Home.dart';
 import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:app_agri_booking/pages/login.dart';
 import 'package:app_agri_booking/pages/register.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       //theme: ThemeData(useMaterial3: false),
       title: 'Flutter Demo',
       //home: Register(),
-      home: LoginPage(),
+      home: HomeClientPage(),
       //home: HomeUserAllPage(),
       //home: LoginPage(),
     );
