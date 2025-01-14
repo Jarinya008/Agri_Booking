@@ -27,7 +27,7 @@ class HomeUserAllPage extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'ค้นหา :ชื่อรถ,ประเภทรถ,ราคา,จังหวัด,อำเภอ',
+                hintText: 'ค้นหา : ชื่อรถ,ประเภทรถ,ราคา,จังหวัด,อำเภอ',
                 prefixIcon: const Icon(Icons.search),
                 fillColor: Colors.grey[200], // สีพื้นหลังของช่องค้นหา
                 filled: true, // เปิดการใช้งานสีพื้นหลัง

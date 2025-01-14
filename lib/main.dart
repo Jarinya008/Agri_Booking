@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       //theme: ThemeData(useMaterial3: false),
       title: 'Flutter Demo',
-      home: Register(),
-      //home: LoginPage(),
+      //home: Register(),
+      home: LoginPage(),
       //home: LoginPage(),
     );
   }
