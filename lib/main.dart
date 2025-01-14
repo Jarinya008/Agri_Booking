@@ -18,12 +18,8 @@ class MyApp extends StatelessWidget {
       //theme: ThemeData(useMaterial3: false),
       title: 'Flutter Demo',
       //home: Register(),
-<<<<<<< HEAD
       home: LoginPage(),
-=======
-      //home: LoginPage(),
-      home: HomeUserAllPage(),
->>>>>>> main
+      //home: HomeUserAllPage(),
       //home: LoginPage(),
     );
   }
