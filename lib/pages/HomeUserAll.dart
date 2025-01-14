@@ -116,82 +116,91 @@ class HomeUserAllPage extends StatelessWidget {
                         child: Image.asset(
                           'assets/images/Logo.png', // เปลี่ยนเป็น path รูปภาพของคุณ
                           width: 100.0,
-                          //   height: 150.0,
+                          height: 100.0,
                           fit: BoxFit.cover,
                         ),
                       ),
                       const SizedBox(width: 16.0), // ระยะห่าง
                       // ข้อมูลทางขวา
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'ชื่อรถ : รถเกี่ยวข้าวนาปี/นาปรัง',
                               style: TextStyle(
-                                  fontSize: 16.0, fontWeight: FontWeight.bold),
+                                  fontSize: 12.0, fontWeight: FontWeight.bold),
                             ),
-                            const SizedBox(height: 4.0),
-                            const Text(
+                            Text(
                               'ประเภทรถ : รถเกี่ยวข้าว',
-                              style: TextStyle(fontSize: 14.0),
+                              style: TextStyle(fontSize: 11.0),
                             ),
-                            const SizedBox(height: 4.0),
-                            const Text(
-                              'ที่อยู่ : ตำบลบ้านแท่น อำเภอบ้านแท่น\nจังหวัดชัยภูมิ',
-                              style: TextStyle(fontSize: 14.0),
+                            Text(
+                              'ที่อยู่ : ตำบลบ้านแท่น อำเภอบ้านแท่น จังหวัดชัยภูมิ',
+                              style: TextStyle(fontSize: 11.0),
                             ),
-                            const SizedBox(height: 8.0),
-                            const Row(
+                            Row(
                               children: [
                                 Text(
                                   'ราคา : ',
-                                  style: TextStyle(fontSize: 14.0),
+                                  style: TextStyle(fontSize: 11.0),
                                 ),
                                 Text(
                                   '400 บาท/ไร่',
                                   style: TextStyle(
-                                    fontSize: 14.0,
+                                    fontSize: 11.0,
                                     color: Colors.green,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4.0),
-                            const Text(
+                            Text(
                               'คะแนน : 5.0',
-                              style: TextStyle(fontSize: 14.0),
+                              style: TextStyle(fontSize: 11.0),
                             ),
-                            const SizedBox(height: 4.0),
-                            const Text(
+                            Text(
                               'ระยะทาง : 15 กิโลเมตร',
-                              style: TextStyle(fontSize: 14.0),
+                              style: TextStyle(fontSize: 11.0),
                             ),
-                            const SizedBox(height: 16.0),
-                            // ปุ่ม
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // ไปหน้ารายละเอียดเพิ่มเติม
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const DetailPage(), // ระบุหน้าปลายทาง
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                ),
-                                child: const Text('รายละเอียดเพิ่มเติม'),
-                              ),
-                            ),
+
+                            //ผู้ใช้ทั่วไปดูรายละเอียดไม่ได้เลยเอาปุ่มออก
+                            //button
+                            // const SizedBox(height: 10),
+                            // Align(
+                            //   alignment: Alignment.centerRight,
+                            //   child: SizedBox(
+                            //     width: 150.0, // กำหนดความกว้างที่ต้องการ
+                            //     height: 35.0, // กำหนดความสูงที่ต้องการ
+                            //     child: ElevatedButton(
+                            //       onPressed: () {
+                            //         // ไปหน้ารายละเอียดเพิ่มเติม
+                            //         Navigator.push(
+                            //           context,
+                            //           MaterialPageRoute(
+                            //             builder: (context) =>
+                            //                 const DetailPage(),
+                            //           ),
+                            //         );
+                            //       },
+                            //       style: ElevatedButton.styleFrom(
+                            //         backgroundColor:
+                            //             Color.fromARGB(255, 46, 210, 51),
+                            //         shape: RoundedRectangleBorder(
+                            //           borderRadius: BorderRadius.circular(8.0),
+                            //         ),
+                            //       ),
+                            //       child: const Text(
+                            //         'รายละเอียดเพิ่มเติม',
+                            //         style: TextStyle(
+                            //           fontSize: 11.0,
+                            //           color: Colors
+                            //               .white, // ใช้สีขาวสำหรับตัวอักษร
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // )
                           ],
                         ),
                       ),
