@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/pages/Client/Home.dart';
 import 'package:app_agri_booking/pages/Contractor/Home.dart';
 import 'package:app_agri_booking/pages/Toobar.dart';
@@ -34,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.215.78:3001/login'),
+        Uri.parse(ApiConfig.loginUser), // ใช้ loginUser จาก ApiConfig
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
