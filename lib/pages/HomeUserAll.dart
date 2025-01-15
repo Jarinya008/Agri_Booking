@@ -115,8 +115,8 @@ class HomeUserAllPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10.0),
                         child: Image.asset(
                           'assets/images/Logo.png', // เปลี่ยนเป็น path รูปภาพของคุณ
-                          width: 100.0,
-                          height: 100.0,
+                          width: 80.0,
+                          height: 80.0,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -127,9 +127,9 @@ class HomeUserAllPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'ชื่อรถ : รถเกี่ยวข้าวนาปี/นาปรัง',
+                              'รถเกี่ยวข้าวนาปี/นาปรัง',
                               style: TextStyle(
-                                  fontSize: 12.0, fontWeight: FontWeight.bold),
+                                  fontSize: 15.0, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               'ประเภทรถ : รถเกี่ยวข้าว',

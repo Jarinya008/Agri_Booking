@@ -38,13 +38,14 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.orange[300],
+        backgroundColor: const Color.fromARGB(255, 244, 214, 169), // สีพื้นหลัง
         title: const Text(
           'ค้นหา',
           style: TextStyle(fontSize: 24),
         ),
         centerTitle: true,
       ),
+      backgroundColor: const Color.fromARGB(255, 244, 214, 169), // สีพื้นหลัง
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -98,8 +99,8 @@ class _SearchPageState extends State<SearchPage> {
                                     borderRadius: BorderRadius.circular(10.0),
                                     child: Image.asset(
                                       result['image']!,
-                                      width: 100.0,
-                                      height: 100.0,
+                                      width: 80.0,
+                                      height: 80.0,
                                       fit: BoxFit.cover,
                                     ),
                                   ),
@@ -110,9 +111,9 @@ class _SearchPageState extends State<SearchPage> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'ชื่อรถ : ${result['name']}',
+                                          '${result['name']}',
                                           style: const TextStyle(
-                                              fontSize: 12.0,
+                                              fontSize: 15.0,
                                               fontWeight: FontWeight.bold),
                                         ),
                                         Text(
