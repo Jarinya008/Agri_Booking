@@ -26,16 +26,9 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       //theme: ThemeData(useMaterial3: false),
       title: 'Flutter Demo',
-<<<<<<< HEAD
-      //home: Register(),
-      home: HomeClientPage(),
-      //home: HomeUserAllPage(),
-=======
       //home: MapPage(),
       //home: LoginPage(),
       home: HomeUserAllPage(),
-
->>>>>>> whan
       //home: LoginPage(),
     );
   }
