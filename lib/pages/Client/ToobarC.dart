@@ -1,5 +1,6 @@
 import 'package:app_agri_booking/pages/Client/Home.dart';
 import 'package:app_agri_booking/pages/Client/Me.dart';
+import 'package:app_agri_booking/pages/Client/Queue.dart';
 import 'package:app_agri_booking/pages/Client/Search.dart';
 import 'package:app_agri_booking/pages/HomeUserAll.dart';
 
@@ -42,7 +43,7 @@ class ToobarC extends StatelessWidget {
                 // ใช้ Navigator เพื่อเปลี่ยนหน้าไปที่หน้าจองคิว
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const SearchPage()),
+                  MaterialPageRoute(builder: (context) => QueuePage()),
                 );
               },
               child: const Column(
