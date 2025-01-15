@@ -10,10 +10,10 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   String query = '';
-  String selectedType = 'ประเภท';
+  String selectedType = 'ประเภท'; // ประกาศตัวแปร selectedType
+
   bool isDistanceAscending = true;
   bool isPriceAscending = true;
-
   List<Map<String, String>> searchResults = [
     {
       'name': 'รถเกี่ยวข้าวนาปี/นาปรัง',
@@ -25,7 +25,6 @@ class _SearchPageState extends State<SearchPage> {
       'image': 'assets/images/Logo.png',
     },
   ];
-
   List<Map<String, String>> get filteredResults {
     return searchResults
         .where(
@@ -71,18 +70,14 @@ class _SearchPageState extends State<SearchPage> {
               ),
               const SizedBox(height: 16),
               //Search menu
-              const Text(
-                '   เลื่อนซ้ายเพื่อเพิ่มการค้นหา',
-                style: TextStyle(fontSize: 13),
-              ),
-              Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9BF75),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: SingleChildScrollView(
-                  //scrollDirection: Axis.horizontal, // เปิดการเลื่อนในแนวนอน
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal, // เปิดการเลื่อนในแนวนอน
+                child: Container(
+                  padding: const EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9BF75),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
                   child: Row(
                     mainAxisAlignment:
                         MainAxisAlignment.spaceEvenly, // จัดเรียงปุ่ม
@@ -102,44 +97,102 @@ class _SearchPageState extends State<SearchPage> {
                         child: const Text(
                           'เกี่ยวข้อง',
                           style: TextStyle(
-                            fontSize: 16,
-                          ),
+                              fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                       ),
                       // เครื่องหมาย |
-                      const Text('|   ',
+                      const Text('|',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 1,
                           )),
-                      // Dropdown menu
-                      DropdownButton<String>(
-                        value: selectedType,
-                        underline: const SizedBox(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                        ),
-                        items: [
-                          'ประเภท',
-                          'รถไถ',
-                          'รถแทรกเตอร์',
-                          'รถขุด',
-                          'รถเกี่ยวข้าว',
-                          'รถดำนา',
-                          'รถตัด',
-                        ].map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
+                      //ประเภท
+                      const Text('|', style: TextStyle(fontSize: 18)),
+                      // ปุ่ม "ประเภทรถ"
+                      ElevatedButton(
+                        onPressed: () {
+                          // แสดงป๊อบอัพเมื่อกดปุ่ม
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Container(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    ListTile(
+                                      title: const Text('รถไถ'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedType = 'รถไถ';
+                                        });
+                                        Navigator.pop(
+                                            context); // ปิดป๊อบอัพหลังจากเลือก
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: const Text('รถแทรกเตอร์'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedType = 'รถแทรกเตอร์';
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: const Text('รถขุด'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedType = 'รถขุด';
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: const Text('รถเกี่ยวข้าว'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedType = 'รถเกี่ยวข้าว';
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: const Text('รถดำนา'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedType = 'รถดำนา';
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    ListTile(
+                                      title: const Text('รถตัด'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedType = 'รถตัด';
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           );
-                        }).toList(),
-                        onChanged: (newValue) {
-                          setState(() {
-                            selectedType =
-                                newValue ?? selectedType; // ป้องกัน null
-                          });
                         },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                        child: Text(
+                          selectedType, // ใช้ค่า selectedType แสดงในปุ่ม
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
                       ),
+
                       // เพิ่มระยะห่างเพิ่มเติมถ้าจำเป็น
 
                       // เครื่องหมาย |
@@ -156,15 +209,16 @@ class _SearchPageState extends State<SearchPage> {
                           shadowColor: Colors.transparent,
                           foregroundColor: Colors.black,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
+                            horizontal: 10,
                           ),
                         ),
                         child: Text(
                           'ระยะทาง ${isDistanceAscending ? '↑' : '↓'}',
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const SizedBox(height: 1),
+
                       // เครื่องหมาย |
                       const Text('|',
                           style: TextStyle(
@@ -186,10 +240,10 @@ class _SearchPageState extends State<SearchPage> {
                         ),
                         child: Text(
                           'ราคา ${isPriceAscending ? '↑' : '↓'}',
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const SizedBox(height: 1),
                     ],
                   ),
                 ),
