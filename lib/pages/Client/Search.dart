@@ -84,7 +84,7 @@ class _SearchPageState extends State<SearchPage> {
                       itemBuilder: (context, index) {
                         final result = filteredResults[index];
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 1.0),
                           child: Card(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
