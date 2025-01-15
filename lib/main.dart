@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       //home: MapPage(),
       //home: LoginPage(),
-      home: HomeUserAllPage(),
+      home: HomeClientPage(),
       //home: LoginPage(),
     );
   }
