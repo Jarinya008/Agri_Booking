@@ -1,11 +1,19 @@
 import 'package:app_agri_booking/pages/Client/Home.dart';
 import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:app_agri_booking/pages/login.dart';
+import 'package:app_agri_booking/pages/map.dart';
 import 'package:app_agri_booking/pages/register.dart';
 import 'package:app_agri_booking/pages/Client/InsertFarm.dart';
 import 'package:flutter/material.dart';
+import 'package:flogger/flogger.dart';
+import 'package:logger/logger.dart';
 
 void main() {
+  var logger = Logger();
+
+  // เริ่มใช้งาน log
+  logger.d("This is a debug message!");
+
   runApp(const MyApp());
 }
 
@@ -18,9 +26,16 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       //theme: ThemeData(useMaterial3: false),
       title: 'Flutter Demo',
+<<<<<<< HEAD
       //home: Register(),
       home: HomeClientPage(),
       //home: HomeUserAllPage(),
+=======
+      //home: MapPage(),
+      //home: LoginPage(),
+      home: HomeUserAllPage(),
+
+>>>>>>> whan
       //home: LoginPage(),
     );
   }
