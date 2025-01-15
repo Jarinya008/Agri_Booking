@@ -1,3 +1,4 @@
+import 'package:app_agri_booking/pages/SearchAll.dart';
 import 'package:app_agri_booking/pages/Toobar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,19 @@ class HomeUserAllPage extends StatelessWidget {
                     fontSize: 14.0,
                     color: Colors.grey,
                   ),
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: GestureDetector(
+                    onTap: () {
+                      // เมื่อกดที่ไอคอนค้นหา
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SearchAllPage(), // ไปยังหน้า SearchPage
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.search), // ไอคอนค้นหาที่กดได้
+                  ),
                   fillColor: Colors.grey[200],
                   filled: true,
                   border: OutlineInputBorder(
@@ -50,6 +63,16 @@ class HomeUserAllPage extends StatelessWidget {
                     borderSide: BorderSide.none,
                   ),
                 ),
+                onSubmitted: (value) {
+                  // เมื่อกด Enter หลังจากพิมพ์ข้อความ
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const SearchAllPage(), // ไปยังหน้า SearchPage พร้อมส่งค่าคำค้นหา
+                    ),
+                  );
+                },
               ),
             ),
 
