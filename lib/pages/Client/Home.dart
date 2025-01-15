@@ -1,4 +1,6 @@
-import 'package:app_agri_booking/pages/Toobar.dart';
+import 'package:app_agri_booking/pages/Client/Search.dart';
+import 'package:app_agri_booking/pages/Client/ToobarC.dart';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +44,19 @@ class HomeClientPage extends StatelessWidget {
                     fontSize: 14.0,
                     color: Colors.grey,
                   ),
-                  prefixIcon: const Icon(Icons.search),
+                  prefixIcon: GestureDetector(
+                    onTap: () {
+                      // เมื่อกดที่ไอคอนค้นหา
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SearchPage(), // ไปยังหน้า SearchPage
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.search), // ไอคอนค้นหาที่กดได้
+                  ),
                   fillColor: Colors.grey[200],
                   filled: true,
                   border: OutlineInputBorder(
@@ -50,6 +64,16 @@ class HomeClientPage extends StatelessWidget {
                     borderSide: BorderSide.none,
                   ),
                 ),
+                onSubmitted: (value) {
+                  // เมื่อกด Enter หลังจากพิมพ์ข้อความ
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          SearchPage(), // ไปยังหน้า SearchPage พร้อมส่งค่าคำค้นหา
+                    ),
+                  );
+                },
               ),
             ),
 
@@ -204,7 +228,7 @@ class HomeClientPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const Toobar(),
+      bottomNavigationBar: const ToobarC(),
     );
   }
 }
