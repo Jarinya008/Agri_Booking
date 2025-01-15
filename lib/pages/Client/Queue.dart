@@ -56,12 +56,13 @@ class _QueuePageState extends State<QueuePage> {
           color: selectedTabIndex == index
               ? Color.fromARGB(255, 191, 239, 243)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(15),
         ),
         child: Text(
           title,
           style: TextStyle(
             color: selectedTabIndex == index ? Colors.black : Colors.black,
+            fontSize: 15,
             fontWeight:
                 selectedTabIndex == index ? FontWeight.bold : FontWeight.normal,
           ),
@@ -80,7 +81,9 @@ class _QueuePageState extends State<QueuePage> {
           padding: EdgeInsets.all(16.0), // ระยะห่างขอบ
           child: Text(
             '    รายการจองคิวทั้งหมด',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 15,
+            ),
           ),
         ),
       ),
@@ -97,7 +100,9 @@ class _QueuePageState extends State<QueuePage> {
           padding: EdgeInsets.all(16.0), // ระยะห่างขอบ
           child: Text(
             '    ประวัติการจองคิวทั้งหมด',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 15,
+            ),
           ),
         ),
       ),
