@@ -11,6 +11,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   String query = '';
   String selectedType = 'ประเภท'; // ประกาศตัวแปร selectedType
+  String selectedTypeFarm = 'ที่นา';
 
   bool isDistanceAscending = true;
   bool isPriceAscending = true;
@@ -46,28 +47,107 @@ class _SearchPageState extends State<SearchPage> {
       backgroundColor: const Color.fromARGB(255, 244, 214, 169),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(15.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
               // ช่องค้นหา
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    query = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  hintText: 'พิมพ์คำที่ต้องการค้นหา...',
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+              Row(
+                children: [
+                  // ช่องค้นหา
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          query = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'พิมพ์คำที่ต้องการค้นหา...',
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 13.0),
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[200],
+                      ),
+                    ),
                   ),
-                  filled: true,
-                  fillColor: Colors.grey[200],
-                ),
+                  const SizedBox(width: 10), // ระยะห่างระหว่างช่องค้นหาและปุ่ม
+                  // ปุ่ม "ที่นา"
+                  ElevatedButton(
+                    onPressed: () {
+                      // แสดงป๊อบอัพเมื่อกดปุ่ม
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Container(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  title:
+                                      const Text('ที่นา 1 ชัยภูมิ'), //ชื่อที่นา
+                                  onTap: () {
+                                    setState(() {
+                                      selectedTypeFarm =
+                                          'ชัยภูมิ'; //ดึงที่อยู่มาใส่
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                ListTile(
+                                  title: const Text('ที่นา 2 ขอนแก่น'),
+                                  onTap: () {
+                                    setState(() {
+                                      selectedTypeFarm =
+                                          'ขอนแก่น'; //ดึงที่อยู่มาใส่
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                                ListTile(
+                                  title: const Text('ที่นา 3 สารคาม บานนา'),
+                                  onTap: () {
+                                    setState(() {
+                                      selectedTypeFarm =
+                                          'สารคามมมมมมมมมมมมมมมมมมม';
+                                    });
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          const Color.fromARGB(255, 232, 134, 6), // สีของปุ่ม
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // มุมโค้งมน
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                    ),
+                    child: Text(
+                      selectedTypeFarm.length > 5
+                          ? '${selectedTypeFarm.substring(0, 5)}...'
+                          : selectedTypeFarm, // แสดงข้อความสั้นพร้อม ...
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
               ),
+
               const SizedBox(height: 16),
               //Search menu
               SingleChildScrollView(
