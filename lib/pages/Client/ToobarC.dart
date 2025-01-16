@@ -1,3 +1,4 @@
+import 'package:app_agri_booking/pages/Client/%E0%B9%8CNotification.dart';
 import 'package:app_agri_booking/pages/Client/Home.dart';
 import 'package:app_agri_booking/pages/Client/Me.dart';
 import 'package:app_agri_booking/pages/Client/Queue.dart';
@@ -61,8 +62,7 @@ class ToobarC extends StatelessWidget {
                 // ใช้ Navigator เพื่อเปลี่ยนหน้าไปที่หน้าการแจ้งเตือน
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const HomeClientPage()),
+                  MaterialPageRoute(builder: (context) => NotificationPage()),
                 );
               },
               child: const Column(
