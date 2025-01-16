@@ -1,3 +1,4 @@
+import 'package:app_agri_booking/pages/Client/ToobarC.dart';
 import 'package:flutter/material.dart';
 
 class NotificationPage extends StatelessWidget {
@@ -6,13 +7,11 @@ class NotificationPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('การแจ้งเตือน'),
+        backgroundColor: const Color(0xFFFFC074),
+        centerTitle: true,
+        automaticallyImplyLeading: false, // ปิดปุ่ม "กดกลับ"
       ),
-      body: Center(
-        child: Text(
-          'Notification Page',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      ),
+      bottomNavigationBar: const ToobarC(),
     );
   }
 }

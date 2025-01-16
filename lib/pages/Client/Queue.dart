@@ -17,6 +17,7 @@ class _QueuePageState extends State<QueuePage> {
         title: const Text('รายการจองคิวรถ'),
         backgroundColor: const Color(0xFFFFC074),
         centerTitle: true,
+        automaticallyImplyLeading: false, // ปิดปุ่ม "กดกลับ"
       ),
       body: Column(
         children: [
