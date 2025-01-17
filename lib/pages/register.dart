@@ -103,7 +103,9 @@ class _RegisterState extends State<Register> {
         passwordController.text.isEmpty ||
         phoneController.text.isEmpty ||
         contractController.text.isEmpty ||
-        addrassController.text.isEmpty) {
+        addrassController.text.isEmpty ||
+        lat == null ||
+        lng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('กรุณากรอกข้อมูลให้ครบถ้วน')));
       return;
@@ -117,15 +119,15 @@ class _RegisterState extends State<Register> {
       'image': 'profile.jpg',
       'contact': contractController.text,
       'address': addrassController.text,
-      'lat': lat ?? 13.7563,
-      'lng': lng ?? 100.5018,
+      'lat': lat,
+      'lng': lng,
       'mtype': selectedMtype,
     };
 
     print('Data being sent: $data');
     try {
       final response = await http.post(
-        Uri.parse(ApiConfig.loginUser), // ใช้ loginUser จาก ApiConfig
+        Uri.parse(ApiConfig.registerUser), // ใช้ loginUser จาก ApiConfig
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
