@@ -1,4 +1,5 @@
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
+import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:flutter/material.dart';
 
 class MePage extends StatelessWidget {
@@ -95,6 +96,13 @@ class MePage extends StatelessWidget {
                         'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR_OSwHRWaHZlUQ3AiRMMhf5Aqg9ZcnvBsBuUEbuAXu_jIESdvq',
                         () {
                           // กดแล้วทำอะไร
+
+                          // ใช้ Navigator เพื่อเปลี่ยนหน้าไปที่หน้าผู้ใช้
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HomeUserAllPage()),
+                          );
                         },
                       ),
                       _buildMenuItem(
