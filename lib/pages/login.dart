@@ -32,6 +32,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!isEmail) 'username': usernameOrEmail,
       'password': password,
     };
+    print('Data being sent: $data');
 
     try {
       final response = await http.post(
