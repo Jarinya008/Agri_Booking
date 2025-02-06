@@ -417,7 +417,6 @@ class _SearchPageState extends State<SearchAllPage> {
           ),
         ),
       ),
-      bottomNavigationBar: const Toobar(),
     );
   }
 }

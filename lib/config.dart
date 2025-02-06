@@ -15,6 +15,5 @@ class ApiConfig {
   static const String updateFarm = "$baseUrl/client/update/farm";
   static const String deleteFarm = "$baseUrl/client/delete/farm";
   static const String getFarmList = "$baseUrl/client/farms";
-
   // เพิ่ม Endpoint อื่น ๆ ที่ต้องการ
 }

@@ -3,17 +3,22 @@ import 'package:app_agri_booking/pages/Toobar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
-class HomeUserAllPage extends StatelessWidget {
+class HomeUserAllPage extends StatefulWidget {
   const HomeUserAllPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // ลิงก์ของรูปภาพ
-    final List<String> imageUrls = [
-      'https://www.vervaet.nl/dbupload/_p34_hydro.jpg',
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNHzaUcniTqXfWLOpa5HfWV_eTQAdBjHPNKg&s',
-    ];
+  _HomeUserAllPageState createState() => _HomeUserAllPageState();
+}
 
+// ลิงก์ของรูปภาพ
+class _HomeUserAllPageState extends State<HomeUserAllPage> {
+  final List<String> imageUrls = [
+    'https://www.vervaet.nl/dbupload/_p34_hydro.jpg',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNHzaUcniTqXfWLOpa5HfWV_eTQAdBjHPNKg&s',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 244, 214, 169), // สีพื้นหลัง
       body: SingleChildScrollView(
@@ -45,16 +50,16 @@ class HomeUserAllPage extends StatelessWidget {
                   ),
                   prefixIcon: GestureDetector(
                     onTap: () {
-                      // เมื่อกดที่ไอคอนค้นหา
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              SearchAllPage(), // ไปยังหน้า SearchPage
-                        ),
-                      );
+                      Future.microtask(() {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchAllPage(),
+                          ),
+                        );
+                      });
                     },
-                    child: const Icon(Icons.search), // ไอคอนค้นหาที่กดได้
+                    child: const Icon(Icons.search),
                   ),
                   fillColor: Colors.grey[200],
                   filled: true,
@@ -64,14 +69,14 @@ class HomeUserAllPage extends StatelessWidget {
                   ),
                 ),
                 onSubmitted: (value) {
-                  // เมื่อกด Enter หลังจากพิมพ์ข้อความ
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const SearchAllPage(), // ไปยังหน้า SearchPage พร้อมส่งค่าคำค้นหา
-                    ),
-                  );
+                  Future.microtask(() {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchAllPage(),
+                      ),
+                    );
+                  });
                 },
               ),
             ),
@@ -108,126 +113,98 @@ class HomeUserAllPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             const Padding(
-              padding: EdgeInsets.only(
-                  left: 25.0, top: 8.0), // ปรับระยะห่างจากด้านซ้ายและด้านบน
+              padding: EdgeInsets.only(left: 25.0, top: 8.0),
               child: Text(
                 'รถที่ให้บริการ',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
-                  height: 1.5, // ระยะห่างระหว่างบรรทัด
+                  height: 1.5,
                 ),
               ),
             ),
 
             // Card
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                elevation: 5.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // รูปภาพด้านซ้าย
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: Image.asset(
-                          'assets/images/Logo.png', // เปลี่ยนเป็น path รูปภาพของคุณ
-                          width: 80.0,
-                          height: 80.0,
-                          fit: BoxFit.cover,
+            GestureDetector(
+              onTap: () {
+                Future.microtask(() {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Toobar(value: 0),
+                    ),
+                  );
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  elevation: 5.0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: Image.asset(
+                            'assets/images/Logo.png',
+                            width: 80.0,
+                            height: 80.0,
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16.0), // ระยะห่าง
-                      // ข้อมูลทางขวา
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'รถเกี่ยวข้าวนาปี/นาปรัง',
-                              style: TextStyle(
-                                  fontSize: 15.0, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'ประเภทรถ : รถเกี่ยวข้าว',
-                              style: TextStyle(fontSize: 11.0),
-                            ),
-                            Text(
-                              'ที่อยู่ : ตำบลบ้านแท่น อำเภอบ้านแท่น จังหวัดชัยภูมิ',
-                              style: TextStyle(fontSize: 11.0),
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  'ราคา : ',
-                                  style: TextStyle(fontSize: 11.0),
-                                ),
-                                Text(
-                                  '400 บาท/ไร่',
-                                  style: TextStyle(
-                                    fontSize: 11.0,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
+                        const SizedBox(width: 16.0),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'รถเกี่ยวข้าวนาปี/นาปรัง',
+                                style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                'ประเภทรถ : รถเกี่ยวข้าว',
+                                style: TextStyle(fontSize: 11.0),
+                              ),
+                              Text(
+                                'ที่อยู่ : ตำบลบ้านแท่น อำเภอบ้านแท่น จังหวัดชัยภูมิ',
+                                style: TextStyle(fontSize: 11.0),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    'ราคา : ',
+                                    style: TextStyle(fontSize: 11.0),
                                   ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              'คะแนน : 5.0',
-                              style: TextStyle(fontSize: 11.0),
-                            ),
-                            Text(
-                              'ระยะทาง : 15 กิโลเมตร',
-                              style: TextStyle(fontSize: 11.0),
-                            ),
-
-                            //ผู้ใช้ทั่วไปดูรายละเอียดไม่ได้เลยเอาปุ่มออก
-                            //button
-                            // const SizedBox(height: 10),
-                            // Align(
-                            //   alignment: Alignment.centerRight,
-                            //   child: SizedBox(
-                            //     width: 150.0, // กำหนดความกว้างที่ต้องการ
-                            //     height: 35.0, // กำหนดความสูงที่ต้องการ
-                            //     child: ElevatedButton(
-                            //       onPressed: () {
-                            //         // ไปหน้ารายละเอียดเพิ่มเติม
-                            //         Navigator.push(
-                            //           context,
-                            //           MaterialPageRoute(
-                            //             builder: (context) =>
-                            //                 const DetailPage(),
-                            //           ),
-                            //         );
-                            //       },
-                            //       style: ElevatedButton.styleFrom(
-                            //         backgroundColor:
-                            //             Color.fromARGB(255, 46, 210, 51),
-                            //         shape: RoundedRectangleBorder(
-                            //           borderRadius: BorderRadius.circular(8.0),
-                            //         ),
-                            //       ),
-                            //       child: const Text(
-                            //         'รายละเอียดเพิ่มเติม',
-                            //         style: TextStyle(
-                            //           fontSize: 11.0,
-                            //           color: Colors
-                            //               .white, // ใช้สีขาวสำหรับตัวอักษร
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // )
-                          ],
+                                  Text(
+                                    '400 บาท/ไร่',
+                                    style: TextStyle(
+                                      fontSize: 11.0,
+                                      color: Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                'คะแนน : 5.0',
+                                style: TextStyle(fontSize: 11.0),
+                              ),
+                              Text(
+                                'ระยะทาง : 15 กิโลเมตร',
+                                style: TextStyle(fontSize: 11.0),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -235,22 +212,6 @@ class HomeUserAllPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const Toobar(),
     );
   }
 }
-
-// หน้ารายละเอียดเพิ่มเติม
-// class DetailPage extends StatelessWidget {
-//   const DetailPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('รายละเอียดเพิ่มเติม')),
-//       body: const Center(
-//         child: Text('นี่คือหน้ารายละเอียดเพิ่มเติม'),
-//       ),
-//     );
-//   }
-// }

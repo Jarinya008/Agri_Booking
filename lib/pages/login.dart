@@ -22,11 +22,9 @@ class _LoginPageState extends State<LoginPage> {
     final String usernameOrEmail = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
-    // ตรวจสอบรูปแบบว่าเป็นอีเมลหรือไม่
     final bool isEmail =
         RegExp(r"^[^@]+@[^@]+\.[^@]+$").hasMatch(usernameOrEmail);
 
-    // เตรียมข้อมูลส่งไปยัง API
     final Map<String, dynamic> data = {
       if (isEmail) 'email': usernameOrEmail,
       if (!isEmail) 'username': usernameOrEmail,
@@ -35,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.post(
-        Uri.parse(ApiConfig.loginUser), // ใช้ loginUser จาก ApiConfig
+        Uri.parse(ApiConfig.loginUser),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
@@ -188,6 +186,22 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: navigateToRegister,
                       child: const Text('สมัครสมาชิก'),
                     ),
+                    const SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const Toobar(value: 1),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 20),
+                        decoration: BoxDecoration(),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -195,7 +209,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-      bottomNavigationBar: const Toobar(),
     );
   }
 }
