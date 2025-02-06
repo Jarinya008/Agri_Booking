@@ -50,7 +50,7 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
                   ),
                   prefixIcon: GestureDetector(
                     onTap: () {
-                      Future.microtask(() {
+                      Future.delayed(Duration.zero, () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -69,7 +69,7 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
                   ),
                 ),
                 onSubmitted: (value) {
-                  Future.microtask(() {
+                  Future.delayed(Duration.zero, () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -113,29 +113,20 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
             ),
             const SizedBox(height: 10),
             const Padding(
-              padding: EdgeInsets.only(left: 25.0, top: 8.0),
+              padding: EdgeInsets.only(
+                  left: 25.0, top: 8.0), // ปรับระยะห่างจากด้านซ้ายและด้านบน
               child: Text(
                 'รถที่ให้บริการ',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
-                  height: 1.5,
+                  height: 1.5, // ระยะห่างระหว่างบรรทัด
                 ),
               ),
             ),
 
             // Card
             GestureDetector(
-              onTap: () {
-                Future.microtask(() {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const Toobar(value: 0),
-                    ),
-                  );
-                });
-              },
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Card(
@@ -208,6 +199,16 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
                   ),
                 ),
               ),
+              onTap: () {
+                Future.delayed(Duration.zero, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Toobar(value: 0),
+                    ),
+                  );
+                });
+              },
             ),
           ],
         ),
