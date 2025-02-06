@@ -190,28 +190,6 @@ class _RegisterState extends State<Register> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
-              // Center(
-              //   child: GestureDetector(
-              //     onTap: () {
-              //       setState(() {
-              //         profileImage =
-              //             'assets/images/beginprofile.png'; // Placeholder profile image
-              //       });
-              //     },
-              //     child: CircleAvatar(
-              //       radius: 50,
-              //       backgroundColor: Colors.grey[200],
-              //       backgroundImage:
-              //           profileImage != null ? AssetImage(profileImage!) : null,
-              //       child: profileImage == null
-              //           ? const Icon(Icons.person,
-              //               size: 50, color: Color.fromARGB(255, 135, 241, 169))
-              //           : null,
-              //     ),
-              //   ),
-              // ),
-
               Center(
                 child: GestureDetector(
                   onTap: _pickImage,
@@ -220,19 +198,29 @@ class _RegisterState extends State<Register> {
                     backgroundColor: Colors.grey[200],
                     backgroundImage: _selectedImage != null
                         ? FileImage(_selectedImage!)
-                        : AssetImage('assets/images/beginprofile.png')
-                            as ImageProvider,
+                        : null, // ไม่มี backgroundImage ถ้าไม่มีการเลือกภาพ
                     child: _selectedImage == null
-                        ? null // ไม่แสดงไอคอนเมื่อใช้รูปภาพเริ่มต้น
-                        : null,
+                        ? const Icon(
+                            Icons.person, // ไอคอนรูปคน
+                            size: 40, // ขนาดไอคอน
+                            color: Colors.green, // สีไอคอน
+                          )
+                        : null, // ไม่แสดงไอคอนเมื่อมีการเลือกภาพ
                   ),
                 ),
               ),
-
-              const Text(
-                'เลือกประเภทผู้ใช้งาน',
-                style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+              const SizedBox(height: 30),
+              const Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: 20.0), // กำหนดระยะห่างซ้ายขวา
+                child: Text(
+                  'โปรดเลือกประเภทผู้ใช้',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
               ),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Expanded(
@@ -242,8 +230,8 @@ class _RegisterState extends State<Register> {
                       }),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: selectedMtype == 0
-                            ? Color.fromARGB(255, 93, 177, 97)
-                            : Color.fromARGB(255, 25, 92, 49),
+                            ? const Color.fromARGB(255, 93, 177, 97)
+                            : const Color.fromARGB(255, 25, 92, 49),
                       ),
                       child: const Text(
                         'เจ้าของรถ',
@@ -251,7 +239,7 @@ class _RegisterState extends State<Register> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 60),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () => setState(() {
@@ -259,8 +247,8 @@ class _RegisterState extends State<Register> {
                       }),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: selectedMtype == 1
-                            ? Color.fromARGB(255, 93, 177, 97)
-                            : Color.fromARGB(255, 25, 92, 49),
+                            ? const Color.fromARGB(255, 93, 177, 97)
+                            : const Color.fromARGB(255, 25, 92, 49),
                       ),
                       child: const Text(
                         'ผู้จ้าง',
@@ -270,86 +258,7 @@ class _RegisterState extends State<Register> {
                   ),
                 ],
               ),
-              // const SizedBox(height: 20),
-              // TextField(
-              //   controller: usernameController,
-              //   decoration: const InputDecoration(
-              //       labelText: 'ชื่อผู้ใช้', border: OutlineInputBorder()),
-              // ),
-              // const SizedBox(height: 10),
-              // TextField(
-              //   controller: emailController,
-              //   decoration: const InputDecoration(
-              //       labelText: 'อีเมล', border: OutlineInputBorder()),
-              // ),
-              // const SizedBox(height: 10),
-              // TextField(
-              //   controller: passwordController,
-              //   obscureText: true,
-              //   decoration: const InputDecoration(
-              //       labelText: 'รหัสผ่าน', border: OutlineInputBorder()),
-              // ),
-              // const SizedBox(height: 10),
-              // TextField(
-              //   controller: phoneController,
-              //   keyboardType: TextInputType.number,
-              //   maxLength: 10,
-              //   decoration: const InputDecoration(
-              //       labelText: 'เบอร์โทร', border: OutlineInputBorder()),
-              // ),
-              // const SizedBox(height: 10),
-              // TextField(
-              //   controller: contractController,
-              //   maxLength: 255,
-              //   decoration: const InputDecoration(
-              //       labelText: 'ข้อมูลติดต่อเพิ่มเติม',
-              //       border: OutlineInputBorder()),
-              // ),
-              // const SizedBox(height: 10),
-              // ElevatedButton(
-              //   onPressed: _openMapDialog,
-              //   style: ElevatedButton.styleFrom(
-              //       backgroundColor: const Color.fromARGB(255, 250, 231, 87)),
-              //   child: const Text('เลือกตำแหน่ง GPS'),
-              // ),
-              // const SizedBox(height: 10),
-              // Text(
-              //   'ตำแหน่งที่เลือก: ${lat ?? 'ไม่ระบุ'}, ${lng ?? 'ไม่ระบุ'}',
-              //   style: const TextStyle(fontSize: 16),
-              // ),
-              // const SizedBox(height: 10),
-              // TextField(
-              //   controller: addrassController,
-              //   maxLength: 500,
-              //   decoration: const InputDecoration(
-              //       labelText: 'ที่อยู่',
-              //       hintText: 'เช่น บ้านเลขที่ ชื่อหมู่บ้าน ถนน ลักษณะเด่น',
-              //       border: OutlineInputBorder()),
-              // ),
-              // const SizedBox(height: 20),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //   children: [
-              //     ElevatedButton(
-              //       onPressed: () {
-              //         Navigator.pop(context); // Go back to the previous page
-              //       },
-              //       style: ElevatedButton.styleFrom(
-              //           backgroundColor: const Color.fromARGB(255, 255, 0, 0)),
-              //       child: const Text('ยกเลิก',
-              //           style: TextStyle(color: Colors.white)),
-              //     ),
-              //     ElevatedButton(
-              //       onPressed: _registerUser,
-              //       style: ElevatedButton.styleFrom(
-              //           backgroundColor: Color.fromARGB(255, 68, 255, 78)),
-              //       child: const Text('สมัครสมาชิก',
-              //           style: TextStyle(color: Colors.black)),
-              //     ),
-              //   ],
-              // ),
-              // const SizedBox(height: 20),
-
+              const SizedBox(height: 30),
               Container(
                 padding: const EdgeInsets.all(20), // เพิ่มระยะห่างภายใน
                 decoration: BoxDecoration(
@@ -441,11 +350,7 @@ class _RegisterState extends State<Register> {
                         ),
                       ],
                     ),
-                    // const SizedBox(height: 10),
-                    // Text(
-                    //   'ตำแหน่งที่เลือก: ${lat ?? 'ไม่ระบุ'}, ${lng ?? 'ไม่ระบุ'}',
-                    //   style: const TextStyle(fontSize: 16),
-                    // ),
+
                     const SizedBox(height: 10),
                     TextField(
                       controller: addrassController,
@@ -480,7 +385,8 @@ class _RegisterState extends State<Register> {
                         ElevatedButton(
                           onPressed: _registerUser,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 68, 255, 78),
+                            backgroundColor:
+                                const Color.fromARGB(255, 68, 255, 78),
                           ),
                           child: const Text('สมัครสมาชิก',
                               style: TextStyle(color: Colors.black)),

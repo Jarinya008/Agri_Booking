@@ -3,8 +3,15 @@ import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:flutter/material.dart';
 
 class MePage extends StatelessWidget {
+  final dynamic userData; // ตัวแปรเพื่อรับข้อมูลที่ส่งมา
+
+  const MePage({super.key, required this.userData}); // รับข้อมูลจาก LoginPage
+
   @override
   Widget build(BuildContext context) {
+    print("เข้าสู้ระบบแล้วนะเย้ๆๆๆๆ");
+    print(this.userData);
+    print("----------------------------------------");
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 153, 69, 9),
       body: SingleChildScrollView(
@@ -21,24 +28,27 @@ class MePage extends StatelessWidget {
                   bottomRight: Radius.circular(100.0),
                 ),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   // รูปภาพโปรไฟล์จาก URL
                   SizedBox(height: 55),
                   CircleAvatar(
                     radius: 90,
                     backgroundImage: NetworkImage(
-                      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4e9fWazRAThnhmWBrNW7gfn8E1vF8vtrtzY9iMHe_QZsjmC-gzxv-zMDMLvYaHW5cv9o&usqp=CAU',
+                      userData['profilePicture'] ??
+                          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4e9fWazRAThnhmWBrNW7gfn8E1vF8vtrtzY9iMHe_QZsjmC-gzxv-zMDMLvYaHW5cv9o&usqp=CAU', // ใช้ URL จาก userData หรือ URL พื้นฐาน
                     ),
                   ),
                   SizedBox(height: 16),
                   // ชื่อและเบอร์โทร
                   Text(
-                    'Jarinya',
+                    userData['username'] ??
+                        'ไม่มีชื่อ', // ใช้ข้อมูลจาก userData
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    '0822222222',
+                    userData['phone'] ??
+                        'ไม่มีเบอร์โทร', // ใช้ข้อมูลจาก userData
                     style: TextStyle(fontSize: 16),
                   ),
                 ],
@@ -96,8 +106,6 @@ class MePage extends StatelessWidget {
                         'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR_OSwHRWaHZlUQ3AiRMMhf5Aqg9ZcnvBsBuUEbuAXu_jIESdvq',
                         () {
                           // กดแล้วทำอะไร
-
-                          // ใช้ Navigator เพื่อเปลี่ยนหน้าไปที่หน้าผู้ใช้
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -120,7 +128,7 @@ class MePage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const ToobarC(),
+      //bottomNavigationBar: const ToobarC(userData: userData),
     );
   }
 

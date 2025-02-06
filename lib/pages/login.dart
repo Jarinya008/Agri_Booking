@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/pages/Client/Home.dart';
+import 'package:app_agri_booking/pages/Client/Me.dart';
 import 'package:app_agri_booking/pages/Contractor/Home.dart';
 import 'package:app_agri_booking/pages/Toobar.dart';
 import 'package:app_agri_booking/pages/register.dart';
@@ -22,9 +23,11 @@ class _LoginPageState extends State<LoginPage> {
     final String usernameOrEmail = _usernameController.text.trim();
     final String password = _passwordController.text.trim();
 
+    // ตรวจสอบรูปแบบว่าเป็นอีเมลหรือไม่
     final bool isEmail =
         RegExp(r"^[^@]+@[^@]+\.[^@]+$").hasMatch(usernameOrEmail);
 
+    // เตรียมข้อมูลส่งไปยัง API
     final Map<String, dynamic> data = {
       if (isEmail) 'email': usernameOrEmail,
       if (!isEmail) 'username': usernameOrEmail,
@@ -33,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final response = await http.post(
-        Uri.parse(ApiConfig.loginUser),
+        Uri.parse(ApiConfig.loginUser), // ใช้ loginUser จาก ApiConfig
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
@@ -47,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
           final List<dynamic> users = responseData['users'];
 
           if (users.length == 1) {
-            _navigateToHomePage(users[0]['mtype']);
+            _navigateToHomePage(users[0]['mtype'], users[0]);
           } else {
             _showUserSelectionDialog(users);
           }
@@ -62,17 +65,25 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _navigateToHomePage(int mtype) {
-    if (mtype == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeContractorPage()),
-      );
-    } else if (mtype == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeClientPage()),
-      );
+  void _navigateToHomePage(int mtype, dynamic userData) {
+    if (userData != null && userData is Map<String, dynamic>) {
+      print("Navigating with userData: $userData"); // ตรวจสอบค่า userData
+
+      if (mtype == 0) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeContractorPage()),
+        );
+      } else if (mtype == 1) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MePage(userData: userData),
+          ),
+        );
+      }
+    } else {
+      print("Error: userData is null or not a valid Map");
     }
   }
 
@@ -94,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                 subtitle: Text(userType),
                 onTap: () {
                   Navigator.pop(context);
-                  _navigateToHomePage(mtype);
+                  _navigateToHomePage(mtype, user); // ส่ง userData ด้วย
                 },
               );
             }).toList(),
@@ -161,45 +172,72 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _usernameController,
                       decoration: const InputDecoration(
                         labelText: 'ชื่อผู้ใช้ / email',
+                        labelStyle: TextStyle(
+                          fontSize: 20, // ปรับขนาดของตัวหนังสือ
+                        ),
                         filled: true,
                         fillColor: Colors.white,
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(20.0)), // ขอบมน
+                        ),
+                        floatingLabelBehavior: FloatingLabelBehavior
+                            .always, // ป้ายชื่ออยู่ด้านบนเสมอ
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 19,
+                            horizontal: 18), // ปรับตำแหน่งป้ายชื่อ
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                     TextField(
                       controller: _passwordController,
                       decoration: const InputDecoration(
                         labelText: 'รหัสผ่าน',
+                        labelStyle: TextStyle(
+                          fontSize: 20, // ปรับขนาดของตัวหนังสือ
+                        ),
                         filled: true,
                         fillColor: Colors.white,
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(20.0)), // ขอบมน
+                        ),
+                        floatingLabelBehavior: FloatingLabelBehavior
+                            .always, // ป้ายชื่ออยู่ด้านบนเสมอ
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 19,
+                            horizontal: 18), // ปรับตำแหน่งป้ายชื่อ
                       ),
                       obscureText: true,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft, // จัดให้อยู่ทางซ้าย
+                      child: TextButton(
+                        onPressed: navigateToRegister,
+                        child: const Text(
+                          'สมัครสมาชิก',
+                          style: TextStyle(
+                            fontSize: 15, // กำหนดขนาดของตัวหนังสือ
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _login,
-                      child: const Text('เข้าสู่ระบบ'),
-                    ),
-                    TextButton(
-                      onPressed: navigateToRegister,
-                      child: const Text('สมัครสมาชิก'),
-                    ),
-                    const SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const Toobar(value: 1),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        decoration: BoxDecoration(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(
+                            255, 74, 207, 70), // กำหนดสีพื้นหลังเป็นสีเขียว
+                        foregroundColor:
+                            Colors.white, // กำหนดสีของตัวหนังสือเป็นสีขาว
+                        minimumSize: const Size(200,
+                            50), // กำหนดขนาดขั้นต่ำของปุ่ม (กว้าง 200px, สูง 50px)
+                      ),
+                      child: const Text(
+                        'เข้าสู่ระบบ',
+                        style: TextStyle(
+                          fontSize: 20, // กำหนดขนาดของตัวหนังสือ
+                        ),
                       ),
                     ),
                   ],

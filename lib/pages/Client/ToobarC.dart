@@ -8,8 +8,6 @@ import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:flutter/material.dart';
 
 class ToobarC extends StatelessWidget {
-  const ToobarC({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -80,7 +78,10 @@ class ToobarC extends StatelessWidget {
                 // ใช้ Navigator เพื่อเปลี่ยนหน้าไปที่หน้าผู้ใช้
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MePage()),
+                  MaterialPageRoute(
+                      builder: (context) => MePage(
+                            userData: null,
+                          )),
                 );
               },
               child: const Column(
