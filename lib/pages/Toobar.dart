@@ -40,7 +40,7 @@ class _ToobarState extends State<Toobar> {
     return Scaffold(
       body: curretnPage,
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFFFFB74D),
+        backgroundColor: Colors.white,
         currentIndex: value,
         items: const [
           BottomNavigationBarItem(
@@ -53,8 +53,8 @@ class _ToobarState extends State<Toobar> {
           ),
         ],
         onTap: switchPage,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.white,
+        selectedItemColor: const Color(0xFFEF6C00),
+        unselectedItemColor: Colors.black,
       ),
     );
   }

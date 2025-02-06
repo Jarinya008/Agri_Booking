@@ -41,7 +41,6 @@ class _QueuePageState extends State<QueuePage> {
           ),
         ],
       ),
-      bottomNavigationBar: ToobarC(),
     );
   }
 

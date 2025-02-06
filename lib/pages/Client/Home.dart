@@ -1,10 +1,8 @@
 import 'dart:convert';
-
 import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/model/GetAllTracts.dart';
 import 'package:app_agri_booking/pages/Client/Search.dart';
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
