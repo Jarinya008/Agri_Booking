@@ -1,3 +1,4 @@
+import 'package:app_agri_booking/pages/Client/EditUser.dart';
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
 import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:flutter/material.dart';
@@ -105,6 +106,10 @@ class MePage extends StatelessWidget {
                         'https://cdn-icons-png.flaticon.com/512/10629/10629723.png',
                         () {
                           // กดแล้วทำอะไร
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => edituser()),
+                          );
                         },
                       ),
                       _buildMenuItem(
