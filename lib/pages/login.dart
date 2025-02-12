@@ -87,35 +87,112 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  // void _showUserSelectionDialog(List<dynamic> users) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('เลือกผู้ใช้'),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: users.map((user) {
+  //             final String username = user['username'];
+  //             final int mtype = user['mtype'];
+  //             final String userType = mtype == 0 ? 'เจ้าของรถ' : 'ผู้จ้าง';
+
+  //             return ListTile(
+  //               title: Text(username),
+  //               subtitle: Text(userType),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 _navigateToHomePage(mtype, user); // ส่ง userData ด้วย
+  //               },
+  //             );
+  //           }).toList(),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text('ยกเลิก'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
   void _showUserSelectionDialog(List<dynamic> users) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('เลือกผู้ใช้'),
+          title: const Center(
+            child: Text(
+              'กรุณาเลือกโหมดผู้ใช้',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: users.map((user) {
-              final String username = user['username'];
-              final int mtype = user['mtype'];
-              final String userType = mtype == 0 ? 'เจ้าของรถ' : 'ผู้จ้าง';
-
-              return ListTile(
-                title: Text(username),
-                subtitle: Text(userType),
-                onTap: () {
-                  Navigator.pop(context);
-                  _navigateToHomePage(mtype, user); // ส่ง userData ด้วย
-                },
-              );
-            }).toList(),
+            children: [
+              Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // จัดปุ่มให้อยู่ตรงกลาง
+                children: [
+                  SizedBox(
+                    width: 120, // กำหนดความกว้างของปุ่ม
+                    height: 50, // กำหนดความสูงของปุ่ม
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 15, 144, 30),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _navigateToHomePage(
+                            1, users.firstWhere((user) => user['mtype'] == 1));
+                      },
+                      child:
+                          const Text('ผู้จ้าง', style: TextStyle(fontSize: 15)),
+                    ),
+                  ),
+                  const SizedBox(width: 15), // เพิ่มระยะห่างระหว่างปุ่ม
+                  SizedBox(
+                    width: 120,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 15, 144, 30),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _navigateToHomePage(
+                            0, users.firstWhere((user) => user['mtype'] == 0));
+                      },
+                      child: const Text('เจ้าของรถ',
+                          style: TextStyle(fontSize: 15)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20), // เพิ่มระยะห่างก่อนปุ่มปิด
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('ปิด', style: TextStyle(color: Colors.black)),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ยกเลิก'),
-            ),
-          ],
+          backgroundColor: const Color.fromARGB(255, 248, 215, 166),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         );
       },
     );
