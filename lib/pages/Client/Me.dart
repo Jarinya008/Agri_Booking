@@ -1,5 +1,6 @@
 import 'package:app_agri_booking/pages/Client/EditUser.dart';
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
+import 'package:app_agri_booking/pages/Farm.dart';
 import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:flutter/material.dart';
 
@@ -117,6 +118,11 @@ class MePage extends StatelessWidget {
                         'https://img.freepik.com/premium-vector/edit-map-icon_933463-4534.jpg',
                         () {
                           // กดแล้วทำอะไร
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => FarmListPage()),
+                          );
                         },
                       ),
                       _buildMenuItem(
