@@ -73,7 +73,8 @@ class _LoginPageState extends State<LoginPage> {
       if (mtype == 0) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeContractorPage()),
+          MaterialPageRoute(
+              builder: (context) => HomeContractorPage(userData: userData)),
         );
       } else if (mtype == 1) {
         Navigator.pushReplacement(

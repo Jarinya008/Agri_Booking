@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class HomeContractorPage extends StatelessWidget {
-  const HomeContractorPage({super.key});
+  final dynamic userData; // รับข้อมูลที่ส่งมา
+
+  const HomeContractorPage({super.key, required this.userData});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('หน้าเปล่า'),
+        title: const Text('เจ้าของรถ'),
       ),
       body: const Center(
         child: Text(

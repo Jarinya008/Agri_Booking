@@ -121,7 +121,8 @@ class MePage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => FarmListPage()),
+                                builder: (context) =>
+                                    FarmListPage(mid: userData['mid'])),
                           );
                         },
                       ),

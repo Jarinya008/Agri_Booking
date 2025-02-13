@@ -1,18 +1,10 @@
 class ApiConfig {
   // URL ของ API ที่ใช้ใน development
-<<<<<<< HEAD
-  //static const String baseUrl =
-  //    "http://192.168.215.78:3001"; // เปลี่ยนที่นี่เมื่อเซิร์ฟเวอร์อยู่ในเครื่อง
-//192.168.62.78
-  static const String baseUrl = "http://192.168.62.78:3001";
-  //static const String baseUrl = "https://agri-api-glxi.onrender.com";
-=======
   static const String baseUrl =
       "http://projectnodejs.thammadalok.com/AGribooking"; // เปลี่ยนที่นี่เมื่อเซิร์ฟเวอร์อยู่ในเครื่อง
 
   // static const String baseUrl = "http://192.168.187.78:3001";
   // static const String baseUrl = "https://agri-api-glxi.onrender.com";
->>>>>>> main
 //  static const String baseUrl = "http://localhost:3000";
 
   // ตัวอย่าง Endpoint
