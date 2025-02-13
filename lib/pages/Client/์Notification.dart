@@ -12,7 +12,6 @@ class NotificationPage extends StatelessWidget {
         automaticallyImplyLeading: false, // ปิดปุ่ม "กดกลับ"
       ),
       body: _buildHistoryContent(), // เรียกใช้ _buildHistoryContent ที่นี่
-      bottomNavigationBar: const ToobarC(),
     );
   }
 

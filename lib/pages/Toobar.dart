@@ -1,53 +1,60 @@
+import 'dart:developer';
+
 import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:app_agri_booking/pages/login.dart';
 import 'package:flutter/material.dart';
 
-class Toobar extends StatelessWidget {
-  const Toobar({super.key});
+class Toobar extends StatefulWidget {
+  final int value;
+  const Toobar({super.key, required this.value});
+
+  @override
+  State<Toobar> createState() => _ToobarState();
+}
+
+class _ToobarState extends State<Toobar> {
+  late int value;
+  late Widget curretnPage = HomeUserAllPage();
+
+  @override
+  void initState() {
+    super.initState();
+    value = widget.value;
+    switchPage(value);
+  }
+
+  void switchPage(int index) {
+    log('Switching to index: $index');
+    setState(() {
+      value = index;
+      if (index == 0) {
+        curretnPage = const HomeUserAllPage();
+      } else if (index == 1) {
+        curretnPage = const LoginPage();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.orange[300], // สีพื้นหลัง
-      padding: const EdgeInsets.symmetric(vertical: 10), // ระยะห่างบน-ล่าง
-      child: Row(
-        mainAxisAlignment:
-            MainAxisAlignment.spaceAround, // จัดตำแหน่งไอคอนให้กระจายทั่วแถว
-        children: [
-          GestureDetector(
-            onTap: () {
-              // ใช้ Navigator เพื่อเปลี่ยนหน้าไปที่หน้าหลัก
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const HomeUserAllPage()),
-              );
-            },
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.home, size: 30), // ไอคอนหน้าหลัก
-                Text('หน้าหลัก'), // ข้อความด้านล่างไอคอน
-              ],
-            ),
+    return Scaffold(
+      body: curretnPage,
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.white,
+        currentIndex: value,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'หน้าหลัก',
           ),
-          GestureDetector(
-            onTap: () {
-              // ใช้ Navigator เพื่อเปลี่ยนหน้าไปที่หน้าผู้ใช้
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.person, size: 30), // ไอคอนโปรไฟล์
-                Text('ฉัน'), // ข้อความด้านล่างไอคอน
-              ],
-            ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'ฉัน',
           ),
         ],
+        onTap: switchPage,
+        selectedItemColor: const Color(0xFFEF6C00),
+        unselectedItemColor: Colors.black,
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/pages/Client/Home.dart';
+import 'package:app_agri_booking/pages/Client/Me.dart';
 import 'package:app_agri_booking/pages/Contractor/Home.dart';
 import 'package:app_agri_booking/pages/Toobar.dart';
 import 'package:app_agri_booking/pages/register.dart';
@@ -50,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
           final List<dynamic> users = responseData['users'];
 
           if (users.length == 1) {
-            _navigateToHomePage(users[0]['mtype']);
+            _navigateToHomePage(users[0]['mtype'], users[0]);
           } else {
             _showUserSelectionDialog(users);
           }
@@ -65,49 +66,134 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _navigateToHomePage(int mtype) {
-    if (mtype == 0) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeContractorPage()),
-      );
-    } else if (mtype == 1) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeClientPage()),
-      );
+  void _navigateToHomePage(int mtype, dynamic userData) {
+    if (userData != null && userData is Map<String, dynamic>) {
+      print("Navigating with userData: $userData"); // ตรวจสอบค่า userData
+
+      if (mtype == 0) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeContractorPage()),
+        );
+      } else if (mtype == 1) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MePage(userData: userData),
+          ),
+        );
+      }
+    } else {
+      print("Error: userData is null or not a valid Map");
     }
   }
+
+  // void _showUserSelectionDialog(List<dynamic> users) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('เลือกผู้ใช้'),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: users.map((user) {
+  //             final String username = user['username'];
+  //             final int mtype = user['mtype'];
+  //             final String userType = mtype == 0 ? 'เจ้าของรถ' : 'ผู้จ้าง';
+
+  //             return ListTile(
+  //               title: Text(username),
+  //               subtitle: Text(userType),
+  //               onTap: () {
+  //                 Navigator.pop(context);
+  //                 _navigateToHomePage(mtype, user); // ส่ง userData ด้วย
+  //               },
+  //             );
+  //           }).toList(),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text('ยกเลิก'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   void _showUserSelectionDialog(List<dynamic> users) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('เลือกผู้ใช้'),
+          title: const Center(
+            child: Text(
+              'กรุณาเลือกโหมดผู้ใช้',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: users.map((user) {
-              final String username = user['username'];
-              final int mtype = user['mtype'];
-              final String userType = mtype == 0 ? 'เจ้าของรถ' : 'ผู้จ้าง';
-
-              return ListTile(
-                title: Text(username),
-                subtitle: Text(userType),
-                onTap: () {
-                  Navigator.pop(context);
-                  _navigateToHomePage(mtype);
-                },
-              );
-            }).toList(),
+            children: [
+              Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // จัดปุ่มให้อยู่ตรงกลาง
+                children: [
+                  SizedBox(
+                    width: 120, // กำหนดความกว้างของปุ่ม
+                    height: 50, // กำหนดความสูงของปุ่ม
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 15, 144, 30),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _navigateToHomePage(
+                            1, users.firstWhere((user) => user['mtype'] == 1));
+                      },
+                      child:
+                          const Text('ผู้จ้าง', style: TextStyle(fontSize: 15)),
+                    ),
+                  ),
+                  const SizedBox(width: 15), // เพิ่มระยะห่างระหว่างปุ่ม
+                  SizedBox(
+                    width: 120,
+                    height: 50,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(255, 15, 144, 30),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _navigateToHomePage(
+                            0, users.firstWhere((user) => user['mtype'] == 0));
+                      },
+                      child: const Text('เจ้าของรถ',
+                          style: TextStyle(fontSize: 15)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20), // เพิ่มระยะห่างก่อนปุ่มปิด
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('ปิด', style: TextStyle(color: Colors.black)),
+              ),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('ยกเลิก'),
-            ),
-          ],
+          backgroundColor: const Color.fromARGB(255, 248, 215, 166),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         );
       },
     );
@@ -164,30 +250,73 @@ class _LoginPageState extends State<LoginPage> {
                       controller: _usernameController,
                       decoration: const InputDecoration(
                         labelText: 'ชื่อผู้ใช้ / email',
+                        labelStyle: TextStyle(
+                          fontSize: 20, // ปรับขนาดของตัวหนังสือ
+                        ),
                         filled: true,
                         fillColor: Colors.white,
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(20.0)), // ขอบมน
+                        ),
+                        floatingLabelBehavior: FloatingLabelBehavior
+                            .always, // ป้ายชื่ออยู่ด้านบนเสมอ
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 19,
+                            horizontal: 18), // ปรับตำแหน่งป้ายชื่อ
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 30),
                     TextField(
                       controller: _passwordController,
                       decoration: const InputDecoration(
                         labelText: 'รหัสผ่าน',
+                        labelStyle: TextStyle(
+                          fontSize: 20, // ปรับขนาดของตัวหนังสือ
+                        ),
                         filled: true,
                         fillColor: Colors.white,
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(20.0)), // ขอบมน
+                        ),
+                        floatingLabelBehavior: FloatingLabelBehavior
+                            .always, // ป้ายชื่ออยู่ด้านบนเสมอ
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 19,
+                            horizontal: 18), // ปรับตำแหน่งป้ายชื่อ
                       ),
                       obscureText: true,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft, // จัดให้อยู่ทางซ้าย
+                      child: TextButton(
+                        onPressed: navigateToRegister,
+                        child: const Text(
+                          'สมัครสมาชิก',
+                          style: TextStyle(
+                            fontSize: 15, // กำหนดขนาดของตัวหนังสือ
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _login,
-                      child: const Text('เข้าสู่ระบบ'),
-                    ),
-                    TextButton(
-                      onPressed: navigateToRegister,
-                      child: const Text('สมัครสมาชิก'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(
+                            255, 74, 207, 70), // กำหนดสีพื้นหลังเป็นสีเขียว
+                        foregroundColor:
+                            Colors.white, // กำหนดสีของตัวหนังสือเป็นสีขาว
+                        minimumSize: const Size(200,
+                            50), // กำหนดขนาดขั้นต่ำของปุ่ม (กว้าง 200px, สูง 50px)
+                      ),
+                      child: const Text(
+                        'เข้าสู่ระบบ',
+                        style: TextStyle(
+                          fontSize: 20, // กำหนดขนาดของตัวหนังสือ
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -196,7 +325,6 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-      bottomNavigationBar: const Toobar(),
     );
   }
 }

@@ -41,7 +41,6 @@ class _QueuePageState extends State<QueuePage> {
           ),
         ],
       ),
-      bottomNavigationBar: const ToobarC(),
     );
   }
 
@@ -151,25 +150,25 @@ class _QueuePageState extends State<QueuePage> {
                 children: [
                   Text(
                     title,
-                    style:
-                        TextStyle(fontSize: 15.0, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 15.0, fontWeight: FontWeight.bold),
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 11.0),
+                    style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(
                     'เบอรโทร $phone',
-                    style: TextStyle(fontSize: 11.0),
+                    style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(
                     status,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11.0,
                       color: Color.fromARGB(255, 2, 187, 233),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
