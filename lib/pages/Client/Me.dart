@@ -110,7 +110,9 @@ class MePage extends StatelessWidget {
                           // กดแล้วทำอะไร
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => edituser()),
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    EditUser(userData: userData)),
                           );
                         },
                       ),
