@@ -1,10 +1,4 @@
-import 'package:app_agri_booking/pages/Client/Home.dart';
-import 'package:app_agri_booking/pages/HomeUserAll.dart';
 import 'package:app_agri_booking/pages/Toobar.dart';
-import 'package:app_agri_booking/pages/login.dart';
-import 'package:app_agri_booking/pages/map.dart';
-import 'package:app_agri_booking/pages/register.dart';
-import 'package:app_agri_booking/pages/Client/InsertFarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flogger/flogger.dart';
 import 'package:logger/logger.dart';
@@ -25,12 +19,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      //theme: ThemeData(useMaterial3: false),
-      title: 'Flutter Demo',
-      //home: MapPage(),
-      //home: LoginPage(),
-      //home: HomeClientPage(),
-      home: HomeUserAllPage(),
-    );
+        //theme: ThemeData(useMaterial3: false),
+        title: 'Flutter Demo',
+        //home: MapPage(),
+        //home: LoginPage(),
+        //home: HomeClientPage(),
+        home: Toobar(
+          value: 0,
+        ));
   }
 }
