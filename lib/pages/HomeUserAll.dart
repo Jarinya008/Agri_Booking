@@ -137,99 +137,128 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
               ),
             ),
             // Displaying Tracts
+            // FutureBuilder to load the tracts data
             FutureBuilder<List<GetAllTracts>>(
               future: fetchData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 } else if (snapshot.hasData) {
-                  final tracts = snapshot.data!;
+                  // Data loaded successfully, build the list of cards
+                  List<GetAllTracts> tracts = snapshot.data!;
                   return ListView.builder(
                     shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
                     itemCount: tracts.length,
                     itemBuilder: (context, index) {
                       final tract = tracts[index];
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Toobar(value: 0),
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            elevation: 5.0,
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    child: Image.asset(
-                                      'assets/images/Logo.png',
-                                      width: 80.0,
-                                      height: 80.0,
-                                      fit: BoxFit.cover,
-                                    ),
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15.0, vertical: 8.0),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          elevation: 5.0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // รูปภาพด้านซ้าย
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  child: Image.asset(
+                                    'assets/images/Logo.png', // เปลี่ยนเป็น path รูปภาพของคุณ
+                                    width: 80.0,
+                                    height: 80.0,
+                                    fit: BoxFit.cover,
                                   ),
-                                  const SizedBox(width: 16.0),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          tract.nameTract,
-                                          style: const TextStyle(
+                                ),
+                                const SizedBox(width: 16.0), // ระยะห่าง
+                                // ข้อมูลทางขวา
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        tract.nameTract,
+                                        style: const TextStyle(
                                             fontSize: 15.0,
-                                            fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        'ประเภทรถ : ${tract.typeNameTract}',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      Text(
+                                        'ที่อยู่ : ${tract.address}',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'ราคา : ',
+                                            style: TextStyle(fontSize: 11.0),
                                           ),
-                                        ),
-                                        Text(
-                                          'ประเภทรถ : ${tract.typeNameTract}',
-                                          style:
-                                              const TextStyle(fontSize: 11.0),
-                                        ),
-                                        Text(
-                                          'ที่อยู่ : ${tract.address}',
-                                          style:
-                                              const TextStyle(fontSize: 11.0),
-                                        ),
-                                        Row(
-                                          children: [
-                                            const Text(
-                                              'ราคา : ',
-                                              style: TextStyle(fontSize: 11.0),
+                                          Text(
+                                            tract.price,
+                                            style: const TextStyle(
+                                              fontSize: 11.0,
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                            Text(
-                                              tract.price,
-                                              style: const TextStyle(
-                                                fontSize: 11.0,
-                                                color: Colors.green,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Text(
-                                          'คะแนน : ${tract.rate}',
-                                          style:
-                                              const TextStyle(fontSize: 11.0),
-                                        ),
-                                      ],
-                                    ),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        'คะแนน : ${tract.rate}',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      Text(
+                                        'ระยะทาง : 50 กิโลเมตร', // Example for distance
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      // const SizedBox(height: 10),
+                                      // Align(
+                                      //   alignment: Alignment.centerRight,
+                                      //   child: SizedBox(
+                                      //     width:
+                                      //         150.0, // กำหนดความกว้างที่ต้องการ
+                                      //     height:
+                                      //         35.0, // กำหนดความสูงที่ต้องการ
+                                      //     child: ElevatedButton(
+                                      //       onPressed: () {
+                                      //         // ฟังก์ชันที่ทำงานเมื่อกดปุ่ม
+                                      //       },
+                                      //       style: ElevatedButton.styleFrom(
+                                      //         backgroundColor:
+                                      //             const Color.fromARGB(
+                                      //                 255, 46, 210, 51),
+                                      //         shape: RoundedRectangleBorder(
+                                      //           borderRadius:
+                                      //               BorderRadius.circular(
+                                      //                   8.0), // มุมโค้ง
+                                      //         ),
+                                      //       ),
+                                      //       child: const Text(
+                                      //         'รายละเอียดเพิ่มเติม',
+                                      //         style: TextStyle(
+                                      //           fontSize: 11.0,
+                                      //           color: Colors
+                                      //               .white, // ใช้สีขาวสำหรับตัวอักษร
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // )
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -237,10 +266,10 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
                     },
                   );
                 } else {
-                  return Center(child: Text('No data available.'));
+                  return const Center(child: Text('No data available'));
                 }
               },
-            )
+            ),
           ],
         ),
       ),

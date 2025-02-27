@@ -8,9 +8,6 @@ class HomeContractorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('เจ้าของรถ'),
-      ),
       body: const Center(
         child: Text(
           'หน้าเจ้าของรถ', // ใส่ข้อความที่ต้องการแสดงที่นี่
