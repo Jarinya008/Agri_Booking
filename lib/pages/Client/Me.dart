@@ -17,7 +17,7 @@ class MePage extends StatelessWidget {
     print("----------------------------------------");
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 153, 69, 9),
+      backgroundColor: Color.fromARGB(255, 255, 240, 194),
       body: SingleChildScrollView(
         child: Column(
           children: [

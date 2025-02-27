@@ -133,14 +133,17 @@ class MyCars extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
+          width: double.infinity, // ทำให้ความกว้างเต็มหน้าจอ
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.grey[300],
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Text(
-            'รถของฉัน',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          child: const Center(
+            child: const Text(
+              'รถของฉัน',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
         const SizedBox(height: 10),
