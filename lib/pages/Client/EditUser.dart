@@ -150,6 +150,7 @@
 // }
 
 import 'dart:convert';
+import 'dart:io';
 import 'package:app_agri_booking/pages/Client/Me.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -158,7 +159,8 @@ import 'package:image_picker/image_picker.dart';
 
 class EditUser extends StatefulWidget {
   final dynamic userData;
-
+  final String imgbbApiKey =
+      "a051ad7a04e7037b74d4d656e7d667e9"; // 🔑 ใส่ API Key ที่ได้จาก ImgBB
   const EditUser({super.key, required this.userData});
 
   @override
@@ -223,8 +225,10 @@ class _EditUserState extends State<EditUser> {
 
     if (image != null) {
       setState(() {
-        imageController.text = image.path; // อัพเดตเส้นทางของภาพที่เลือก
+        imageController.text = image.path; // อัปเดตเส้นทางของภาพที่เลือก
       });
+
+      await _uploadImageToImgBB(); // ⬅️ อัปโหลดภาพไป ImgBB ทันที
     }
   }
 
@@ -329,6 +333,37 @@ class _EditUserState extends State<EditUser> {
     }
   }
 
+  Future<void> _uploadImageToImgBB() async {
+    if (imageController.text.isEmpty) {
+      print("❌ กรุณาเลือกภาพก่อนอัปโหลด");
+      return;
+    }
+
+    File imageFile = File(imageController.text);
+    List<int> imageBytes = await imageFile.readAsBytes();
+    String base64Image = base64Encode(imageBytes);
+
+    final response = await http.post(
+      Uri.parse("https://api.imgbb.com/1/upload"),
+      body: {
+        "key": widget.imgbbApiKey,
+        "image": base64Image,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      String imageUrl = jsonResponse["data"]["url"];
+      print("✅ อัปโหลดสำเร็จ: $imageUrl");
+
+      setState(() {
+        imageController.text = imageUrl; // ใช้ URL ที่อัปโหลดแล้ว
+      });
+    } else {
+      print("❌ อัปโหลดไม่สำเร็จ: ${response.body}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -349,16 +384,30 @@ class _EditUserState extends State<EditUser> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const Stack(
+                Stack(
                   alignment: Alignment.bottomRight,
                   children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: AssetImage('assets/images/Logo.png'),
+                      backgroundImage: (imageController.text.isNotEmpty &&
+                              imageController.text.startsWith("http"))
+                          ? NetworkImage(imageController
+                              .text) // ✅ ใช้รูปจาก URL ที่อัปโหลดไป ImgBB หรือดึงมาจากฐานข้อมูล
+                          : (widget.userData['image'] != null &&
+                                  widget.userData['image']
+                                      .toString()
+                                      .isNotEmpty)
+                              ? NetworkImage(widget.userData[
+                                  'image']) // ✅ ใช้รูปจากฐานข้อมูลถ้ามี
+                              : const AssetImage('assets/images/Logo.png')
+                                  as ImageProvider, // ✅ ไม่มีรูป ให้ใช้โลโก้เริ่มต้น
                     ),
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.edit, color: Colors.black),
+                    GestureDetector(
+                      onTap: _pickImage, // ⬅️ กดแล้วเลือกภาพใหม่
+                      child: const CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.edit, color: Colors.black),
+                      ),
                     ),
                   ],
                 ),

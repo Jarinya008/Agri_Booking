@@ -49,7 +49,7 @@ class MePage extends StatelessWidget {
                     CircleAvatar(
                       radius: 90,
                       backgroundImage: NetworkImage(
-                        userData['profilePicture'] ??
+                        userData['image'] ??
                             'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4e9fWazRAThnhmWBrNW7gfn8E1vF8vtrtzY9iMHe_QZsjmC-gzxv-zMDMLvYaHW5cv9o&usqp=CAU', // ใช้ URL จาก userData หรือ URL พื้นฐาน
                       ),
                     ),

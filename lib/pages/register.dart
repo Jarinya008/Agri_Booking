@@ -12,6 +12,8 @@ import 'package:image_picker/image_picker.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
+  final String imgbbApiKey =
+      "a051ad7a04e7037b74d4d656e7d667e9"; // API Key ของคุณจาก ImgBB
 
   @override
   State<Register> createState() => _RegisterState();
@@ -111,12 +113,18 @@ class _RegisterState extends State<Register> {
       return;
     }
 
+    String? imageUrl;
+    if (_selectedImage != null) {
+      imageUrl =
+          await _uploadImageToImgBB(_selectedImage!); // ส่งภาพไปที่ ImgBB
+    }
+
     final Map<String, dynamic> data = {
       'username': usernameController.text,
       'email': emailController.text,
       'password': passwordController.text,
       'phone': phoneController.text,
-      'image': 'profile.jpg',
+      'image': imageUrl ?? 'default.jpg', // ใช้ค่าเริ่มต้นถ้าไม่มีรูป
       'contact': contractController.text,
       'address': addrassController.text,
       'lat': lat,
@@ -124,10 +132,9 @@ class _RegisterState extends State<Register> {
       'mtype': selectedMtype,
     };
 
-    print('Data being sent: $data');
     try {
       final response = await http.post(
-        Uri.parse(ApiConfig.registerUser), // ใช้ loginUser จาก ApiConfig
+        Uri.parse(ApiConfig.registerUser),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
@@ -136,6 +143,7 @@ class _RegisterState extends State<Register> {
         final responseData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(responseData['message'] ?? 'สมัครสมาชิกสำเร็จ')));
+
         if (selectedMtype == 0) {
           Navigator.pushReplacement(
             context,
@@ -161,21 +169,89 @@ class _RegisterState extends State<Register> {
 
   File? _selectedImage;
 
+  // เพิ่มฟังก์ชันสำหรับเลือกภาพจากแกลเลอรี่
   Future<void> _pickImage() async {
     try {
-      print("Attempting to pick image...");
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
         });
-        print("Image selected: ${image.path}");
-      } else {
-        print("No image selected.");
       }
     } catch (e) {
       print("Error picking image: $e");
+    }
+  }
+
+  // ฟังก์ชันสำหรับอัปโหลดภาพไปยัง ImgBB (ถ้าต้องการ)
+  Future<String?> _uploadImageToImgBB(File imageFile) async {
+    final Uri url = Uri.parse('https://api.imgbb.com/1/upload');
+    final request = http.MultipartRequest('POST', url);
+    request.fields['key'] = widget.imgbbApiKey;
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = jsonDecode(responseData);
+        if (jsonResponse['status'] == 200) {
+          return jsonResponse['data']['url']; // ส่ง URL ของภาพที่อัปโหลดกลับ
+        }
+      }
+    } catch (e) {
+      print("Error uploading image: $e");
+    }
+    return null;
+  }
+
+  // ฟังก์ชันสำหรับแสดงภาพที่เลือกใน CircleAvatar
+  Widget _buildProfileImage() {
+    return CircleAvatar(
+      radius: 50,
+      backgroundColor: Colors.grey[200],
+      backgroundImage: _selectedImage != null
+          ? FileImage(_selectedImage!)
+          : null, // แสดงรูปที่เลือก
+      child: _selectedImage == null
+          ? const Icon(
+              Icons.person, // ไอคอนรูปคน
+              size: 40, // ขนาดไอคอน
+              color: Colors.green, // สีไอคอน
+            )
+          : null, // ไม่แสดงไอคอนถ้ามีภาพ
+    );
+  }
+
+  Future<String?> _uploadImage(File imageFile) async {
+    try {
+      var request =
+          http.MultipartRequest('POST', Uri.parse(ApiConfig.uploadImage));
+
+      // เพิ่ม API Key ลงใน headers
+      request.headers.addAll({
+        'Authorization':
+            'a051ad7a04e7037b74d4d656e7d667e9', // หรือใช้ API Key แบบที่เซิร์ฟเวอร์ต้องการ
+        'Content-Type': 'multipart/form-data',
+      });
+
+      request.files
+          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        var responseData = await response.stream.bytesToString();
+        var jsonResponse = jsonDecode(responseData);
+        return jsonResponse['imageUrl']; // URL ของรูปที่อัปโหลดสำเร็จ
+      } else {
+        print("Upload failed: ${response.reasonPhrase}");
+        return null;
+      }
+    } catch (e) {
+      print("Error uploading image: $e");
+      return null;
     }
   }
 
@@ -192,7 +268,7 @@ class _RegisterState extends State<Register> {
             children: [
               Center(
                 child: GestureDetector(
-                  onTap: _pickImage,
+                  onTap: _pickImage, // เมื่อคลิกจะเลือกภาพจากแกลเลอรี่
                   child: CircleAvatar(
                     radius: 50,
                     backgroundColor: Colors.grey[200],

@@ -16,5 +16,7 @@ class ApiConfig {
   static const String deleteFarm = "$baseUrl/client/delete/farm";
   static const String getFarmList = "$baseUrl/client/farms";
   static const String getAllTractsList = "$baseUrl/general/all_tracts";
+  static const String uploadImage =
+      '$baseUrl/upload-image'; // เพิ่ม API อัปโหลดรูป
   // เพิ่ม Endpoint อื่น ๆ ที่ต้องการ
 }
