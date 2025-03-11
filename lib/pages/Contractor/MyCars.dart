@@ -254,10 +254,11 @@
 
 import 'dart:convert';
 import 'package:app_agri_booking/pages/Client/EditUser.dart';
+import 'package:app_agri_booking/pages/Contractor/DetailCon.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:app_agri_booking/pages/Contractor/AddCar.dart';
-import 'package:app_agri_booking/pages/Toobar.dart';
+import 'package:app_agri_booking/pages/General/Toobar.dart';
 
 class MyCars extends StatefulWidget {
   final Map<String, dynamic> userData;
@@ -300,20 +301,70 @@ class _MyCarsState extends State<MyCars> {
     }
   }
 
-  Future<void> _deleteCar(String tid) async {
-    final url =
-        'hhttp://projectnodejs.thammadalok.com/AGribooking/contractor/delete/tract?tid=$tid'; // ส่ง tid ไปใน URL
-    try {
-      final response = await http.delete(Uri.parse(url));
+  // Future<void> _deleteCar(String tid) async {
+  //   final url =
+  //       'hhttp://projectnodejs.thammadalok.com/AGribooking/contractor/delete/tract?tid=$tid'; // ส่ง tid ไปใน URL
+  //   try {
+  //     final response = await http.delete(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        print('Car deleted successfully');
-        _fetchCarsData(); // รีเฟรชข้อมูลรถหลังจากลบ
-      } else {
-        print('Failed to delete car: ${response.body}');
+  //     if (response.statusCode == 200) {
+  //       print('Car deleted successfully');
+  //       _fetchCarsData(); // รีเฟรชข้อมูลรถหลังจากลบ
+  //     } else {
+  //       print('Failed to delete car: ${response.body}');
+  //     }
+  //   } catch (error) {
+  //     print('Error: $error');
+  //   }
+  // }
+
+  Future<void> _deleteCar(String tid) async {
+    // แสดง Dialog เพื่อยืนยันการลบ
+    bool? isConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('ยืนยันการลบ'),
+          content: const Text('คุณต้องการลบรถคันนี้ใช่หรือไม่?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // กดยกเลิก
+              },
+              child: const Text('ยกเลิก'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // กดยืนยัน
+              },
+              child: const Text('ยืนยัน'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isConfirmed == true) {
+      // ถ้ายืนยันการลบ
+      final url =
+          'http://projectnodejs.thammadalok.com/AGribooking/contractor/delete/tract?tid=$tid'; // ส่ง tid ไปใน URL
+      try {
+        final response = await http.delete(Uri.parse(url));
+
+        if (response.statusCode == 200) {
+          print('Car deleted successfully');
+          // รีเฟรชข้อมูลหลังจากลบสำเร็จ
+          setState(() {
+            _fetchCarsData(); // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูลใหม่
+          });
+        } else {
+          print('Failed to delete car: ${response.body}');
+        }
+      } catch (error) {
+        print('Error: $error');
       }
-    } catch (error) {
-      print('Error: $error');
+    } else {
+      print('Car deletion cancelled');
     }
   }
 
@@ -545,7 +596,16 @@ class _MyCarsState extends State<MyCars> {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green),
-                        onPressed: () {},
+                        onPressed: () {
+                          // เมื่อกดที่ไอคอนค้นหา
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DetailConPage(), // ไปยังหน้า SearchPage
+                            ),
+                          );
+                        },
                         child: const Text('รายละเอียดเพิ่มเติม',
                             style:
                                 TextStyle(color: Colors.white, fontSize: 11)),
@@ -553,13 +613,21 @@ class _MyCarsState extends State<MyCars> {
                       const SizedBox(width: 5),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red),
+                          backgroundColor: Colors.red,
+                        ),
                         onPressed: () async {
-                          await _deleteCar(tid as String); // Pass tid as int
+                          if (tid != null) {
+                            // ตรวจสอบว่า tid ไม่เป็น null
+                            await _deleteCar(tid
+                                .toString()); // แปลง tid เป็น String และเรียกฟังก์ชัน
+                          } else {
+                            print('tid is null');
+                          }
                         },
-                        child: const Text('ลบ',
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 11)),
+                        child: const Text(
+                          'ลบ',
+                          style: TextStyle(color: Colors.white, fontSize: 11),
+                        ),
                       ),
                     ],
                   ),

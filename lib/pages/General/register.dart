@@ -1,19 +1,23 @@
 import 'dart:io';
 
 import 'package:app_agri_booking/config.dart';
+import 'package:app_agri_booking/pages/Client/Me.dart';
+import 'package:app_agri_booking/pages/Client/ToobarC.dart';
+
+import 'package:app_agri_booking/pages/General/Farm.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:app_agri_booking/pages/Contractor/MyCars.dart';
-import 'package:app_agri_booking/pages/Client/InsertFarm.dart';
-import 'package:app_agri_booking/pages/map.dart'; // Import the map page
+import 'package:app_agri_booking/pages/General/map.dart'; // Import the map page
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
-  final String imgbbApiKey =
-      "a051ad7a04e7037b74d4d656e7d667e9"; // API Key ของคุณจาก ImgBB
+  final String imgbbApiKey = "a051ad7a04e7037b74d4d656e7d667e9";
+
+  get mid => null; // API Key ของคุณจาก ImgBB
 
   @override
   State<Register> createState() => _RegisterState();
@@ -150,10 +154,13 @@ class _RegisterState extends State<Register> {
             MaterialPageRoute(builder: (context) => MyCars(userData: data)),
           );
         } else if (selectedMtype == 1) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => InsertFarm(userData: data)),
-          );
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => (
+          //             userData: data,
+          //           )),
+          // );
         }
       } else {
         final responseData = jsonDecode(response.body);

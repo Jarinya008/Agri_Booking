@@ -1,7 +1,7 @@
 import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/model/GetAllTracts.dart';
-import 'package:app_agri_booking/pages/SearchAll.dart';
-import 'package:app_agri_booking/pages/Toobar.dart';
+import 'package:app_agri_booking/pages/General/SearchAll.dart';
+import 'package:app_agri_booking/pages/General/Toobar.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;

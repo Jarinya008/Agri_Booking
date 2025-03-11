@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:app_agri_booking/pages/HomeUserAll.dart';
-import 'package:app_agri_booking/pages/login.dart';
+import 'package:app_agri_booking/pages/General/HomeUserAll.dart';
+import 'package:app_agri_booking/pages/General/login.dart';
 import 'package:flutter/material.dart';
 
 class Toobar extends StatefulWidget {

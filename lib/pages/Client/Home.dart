@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/model/GetAllTracts.dart';
+import 'package:app_agri_booking/pages/Client/Detail.dart';
 import 'package:app_agri_booking/pages/Client/Search.dart';
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -233,6 +234,13 @@ class HomeClientPage extends StatelessWidget {
                                           child: ElevatedButton(
                                             onPressed: () {
                                               // ฟังก์ชันที่ทำงานเมื่อกดปุ่ม
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DetailsPage(), // เปลี่ยนเป็นหน้าที่ต้องการ
+                                                ),
+                                              );
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:

@@ -1,113 +1,14 @@
-// import 'package:app_agri_booking/pages/EditFarm.dart';
-// import 'package:app_agri_booking/pages/InserFarm.dart';
-// import 'package:flutter/material.dart';
-
-// class FarmListPage extends StatelessWidget {
-//   final String mid; // เพิ่มตัวแปรรับค่า
-
-//   const FarmListPage({super.key, required this.mid});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('ข้อมูลไร่นา'),
-//         backgroundColor: Colors.amber,
-//         centerTitle: true,
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             _buildFarmCard(context),
-//             const Spacer(),
-//             _buildAddFarmButton(context),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget _buildFarmCard(BuildContext context) {
-//     // รับ context เป็นพารามิเตอร์
-//     return Container(
-//       padding: const EdgeInsets.all(12),
-//       decoration: BoxDecoration(
-//         color: Colors.orange[300],
-//         borderRadius: BorderRadius.circular(12),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Text(
-//             '16/50 บ้านนาคา ที่นาติดถนนตรงข้ามร้านขายของชำ\nตำบลนาคา อำเภอนาคา จังหวัดสงขลา',
-//             style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-//           ),
-//           const SizedBox(height: 10),
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.end,
-//             children: [
-//               ElevatedButton(
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Colors.red,
-//                   foregroundColor: Colors.white,
-//                 ),
-//                 onPressed: () {
-//                   // TODO: เพิ่มฟังก์ชันลบ
-//                 },
-//                 child: const Text('ลบออก'),
-//               ),
-//               const SizedBox(width: 8),
-//               ElevatedButton(
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: Colors.grey,
-//                   foregroundColor: Colors.white,
-//                 ),
-//                 onPressed: () {
-//                   Navigator.push(
-//                     context, // ตอนนี้ context ใช้งานได้แล้ว!
-//                     MaterialPageRoute(builder: (context) => EditFarmPage()),
-//                   );
-//                 },
-//                 child: const Text('แก้ไข'),
-//               ),
-//             ],
-//           )
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildAddFarmButton(BuildContext context) {
-//     return Align(
-//       alignment: Alignment.bottomRight,
-//       child: TextButton.icon(
-//         onPressed: () {
-//           Navigator.push(
-//             context,
-//             MaterialPageRoute(builder: (context) => const InsertFarmPage()),
-//           );
-//         },
-//         icon: const Icon(Icons.add, color: Colors.orange, size: 50),
-//         label: const Text(
-//           'เพิ่มไร่นา',
-//           style: TextStyle(fontSize: 20, color: Colors.black),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:app_agri_booking/pages/EditFarm.dart';
-import 'package:app_agri_booking/pages/InserFarm.dart';
+import 'package:app_agri_booking/pages/General/EditFarm.dart';
+import 'package:app_agri_booking/pages/General/InserFarm.dart';
 
 class FarmListPage extends StatefulWidget {
   final int mid; // รับค่า mid จากหน้า MePage
 
-  const FarmListPage({super.key, required this.mid});
+  const FarmListPage(
+      {super.key, required this.mid, required Map<String, dynamic> userData});
 
   @override
   _FarmListPageState createState() => _FarmListPageState();
@@ -122,6 +23,8 @@ class _FarmListPageState extends State<FarmListPage> {
     super.initState();
     fetchFarms(); // เรียก API เมื่อหน้าโหลด
   }
+
+// ฟังก์ชันสำหรับดึงข้อมูลฟาร์ม
 
   Future<void> fetchFarms() async {
     final url =
@@ -147,6 +50,30 @@ class _FarmListPageState extends State<FarmListPage> {
     }
   }
 
+  // Future<void> fetchFarms() async {
+  //   final url =
+  //       "http://projectnodejs.thammadalok.com/AGribooking/client/farms/${widget.mid}";
+  //   try {
+  //     final response = await http.get(Uri.parse(url));
+
+  //     if (response.statusCode == 200) {
+  //       print("🔹 API Response: ${response.body}"); // Log ข้อมูลที่ API ส่งมา
+  //       setState(() {
+  //         final decodedData = json.decode(response.body);
+  //         farms = decodedData['farms'] ?? []; // ดึงเฉพาะ farms
+  //         isLoading = false;
+  //       });
+  //     } else {
+  //       throw Exception("Failed to load farms");
+  //     }
+  //   } catch (e) {
+  //     print("Error fetching farms: $e");
+  //     setState(() {
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,7 +98,10 @@ class _FarmListPageState extends State<FarmListPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => InsertFarmPage(mid: widget.mid),
+              builder: (context) => InsertFarmPage(
+                mid: widget.mid,
+                userData: {},
+              ),
             ),
           );
         },
@@ -245,22 +175,72 @@ class _FarmListPageState extends State<FarmListPage> {
     );
   }
 
+  // Future<void> _deleteFarm(int farmId) async {
+  //   final url =
+  //       "http://projectnodejs.thammadalok.com/AGribooking/client/delete/farm/$farmId";
+
+  //   try {
+  //     final response = await http.delete(Uri.parse(url));
+
+  //     if (response.statusCode == 200) {
+  //       setState(() {
+  //         farms.removeWhere((farm) => farm['fid'] == farmId);
+  //       });
+  //     } else {
+  //       throw Exception("Failed to delete farm");
+  //     }
+  //   } catch (e) {
+  //     print("Error deleting farm: $e");
+  //   }
+  // }
+
   Future<void> _deleteFarm(int farmId) async {
-    final url =
-        "http://projectnodejs.thammadalok.com/AGribooking/client/delete/farm/$farmId";
+    // แสดงกล่องยืนยันก่อนลบ
+    bool? confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('ยืนยันการลบฟาร์ม'),
+          content: Text('คุณต้องการลบฟาร์มนี้หรือไม่?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // ผู้ใช้เลือกไม่ลบ
+              },
+              child: Text('ยกเลิก'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // ผู้ใช้เลือกลบ
+              },
+              child: Text('ลบ'),
+            ),
+          ],
+        );
+      },
+    );
 
-    try {
-      final response = await http.delete(Uri.parse(url));
+    // ถ้าผู้ใช้เลือกลบ
+    if (confirmDelete == true) {
+      final url =
+          "http://projectnodejs.thammadalok.com/AGribooking/client/delete/farm/$farmId";
 
-      if (response.statusCode == 200) {
-        setState(() {
-          farms.removeWhere((farm) => farm['fid'] == farmId);
-        });
-      } else {
-        throw Exception("Failed to delete farm");
+      try {
+        final response = await http.delete(Uri.parse(url));
+
+        if (response.statusCode == 200) {
+          setState(() {
+            farms.removeWhere((farm) => farm['fid'] == farmId);
+          });
+
+          // เรียกฟังก์ชันเพื่อโหลดข้อมูลฟาร์มใหม่
+          await fetchFarms();
+        } else {
+          throw Exception("Failed to delete farm");
+        }
+      } catch (e) {
+        print("Error deleting farm: $e");
       }
-    } catch (e) {
-      print("Error deleting farm: $e");
     }
   }
 }
