@@ -9,7 +9,7 @@ import 'dart:convert';
 
 class AddCarPage extends StatefulWidget {
   final int usermid; // เปลี่ยนจาก Map เป็น int เพราะ mid เป็นเลขไอดี
-
+  final String imgbbApiKey = "a051ad7a04e7037b74d4d656e7d667e9";
   // เพิ่ม parameter usermid ใน constructor
   const AddCarPage(
       {super.key,
@@ -79,6 +79,47 @@ class _AddCarPageState extends State<AddCarPage> {
     }
   }
 
+  // ฟังก์ชันสำหรับอัปโหลดภาพไปยัง ImgBB (ถ้าต้องการ)
+  Future<String?> _uploadImageToImgBB(File imageFile) async {
+    final Uri url = Uri.parse('https://api.imgbb.com/1/upload');
+    final request = http.MultipartRequest('POST', url);
+    request.fields['key'] = widget.imgbbApiKey;
+    request.files
+        .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+    try {
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await response.stream.bytesToString();
+        final jsonResponse = jsonDecode(responseData);
+        if (jsonResponse['status'] == 200) {
+          return jsonResponse['data']['url']; // ส่ง URL ของภาพที่อัปโหลดกลับ
+        }
+      }
+    } catch (e) {
+      print("Error uploading image: $e");
+    }
+    return null;
+  }
+
+  // ฟังก์ชันสำหรับแสดงภาพที่เลือกใน CircleAvatar
+  Widget _buildProfileImage() {
+    return CircleAvatar(
+      radius: 50,
+      backgroundColor: Colors.grey[200],
+      backgroundImage: _selectedImage != null
+          ? FileImage(_selectedImage!)
+          : null, // แสดงรูปที่เลือก
+      child: _selectedImage == null
+          ? const Icon(
+              Icons.person, // ไอคอนรูปคน
+              size: 40, // ขนาดไอคอน
+              color: Colors.green, // สีไอคอน
+            )
+          : null, // ไม่แสดงไอคอนถ้ามีภาพ
+    );
+  }
+
   void _addNewType() {
     String newType = _newTypeController.text.trim();
 
@@ -113,7 +154,11 @@ class _AddCarPageState extends State<AddCarPage> {
       print("กรุณากรอกข้อมูลให้ครบ");
       return;
     }
-
+    String? imageUrl;
+    if (_selectedImage != null) {
+      imageUrl =
+          await _uploadImageToImgBB(_selectedImage!); // ส่งภาพไปที่ ImgBB
+    }
     // ข้อมูลที่จะส่งเป็น JSON
     Map<String, dynamic> requestData = {
       'name_tract': _nameController.text, // ชื่อรถ
@@ -125,7 +170,7 @@ class _AddCarPageState extends State<AddCarPage> {
           .where((type) => _selectedTyIds.contains(type["tyid"]))
           .map((type) => type["name_type_tract"])
           .toList(), // ให้เป็น Array ของ string
-      'image': "https://example.com/image.jpg" // URL ของภาพ
+      'image': imageUrl ?? "" // URL ของภาพ
     };
 
     // พิมพ์ข้อมูลก่อนส่ง
@@ -136,7 +181,7 @@ class _AddCarPageState extends State<AddCarPage> {
     print("User ID (mid): ${widget.usermid}");
     print(
         "Selected Types (name_type_tract): ${jsonEncode(requestData['name_type_tract'])}");
-    print("Image URL: https://example.com/image.jpg");
+    print("Image URL: ${jsonEncode(requestData['image'])}");
 
     // ส่งคำขอแบบ JSON
     try {
@@ -178,16 +223,20 @@ class _AddCarPageState extends State<AddCarPage> {
           children: [
             Center(
               child: GestureDetector(
-                onTap: _pickImage,
+                onTap: _pickImage, // เมื่อคลิกจะเลือกภาพจากแกลเลอรี่
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.grey[200],
                   backgroundImage: _selectedImage != null
                       ? FileImage(_selectedImage!)
-                      : null,
+                      : null, // ไม่มี backgroundImage ถ้าไม่มีการเลือกภาพ
                   child: _selectedImage == null
-                      ? const Icon(Icons.image, size: 40, color: Colors.green)
-                      : null,
+                      ? const Icon(
+                          Icons.person, // ไอคอนรูปคน
+                          size: 40, // ขนาดไอคอน
+                          color: Colors.green, // สีไอคอน
+                        )
+                      : null, // ไม่แสดงไอคอนเมื่อมีการเลือกภาพ
                 ),
               ),
             ),

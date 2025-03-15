@@ -152,8 +152,6 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
             _buildTextField("จังหวัด", provinceController),
             _buildTextField("รายละเอียดที่อยู่", detailController, maxLines: 3),
             _buildGPSButton(),
-            _buildTextField("ละติจูด", latController, readOnly: true),
-            _buildTextField("ลองจิจูด", lngController, readOnly: true),
             const SizedBox(height: 20),
             _buildSubmitButton(),
           ],

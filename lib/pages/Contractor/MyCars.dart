@@ -290,6 +290,7 @@ class _MyCarsState extends State<MyCars> {
           _carsData = data;
           _isLoading = false;
         });
+        print(response.body);
       } else {
         throw Exception('Failed to load cars');
       }
@@ -299,6 +300,9 @@ class _MyCarsState extends State<MyCars> {
       });
       print('Error: $error');
     }
+
+    print(widget.userData);
+    print(widget.userData['mid']);
   }
 
   // Future<void> _deleteCar(String tid) async {
@@ -353,6 +357,7 @@ class _MyCarsState extends State<MyCars> {
 
         if (response.statusCode == 200) {
           print('Car deleted successfully');
+          print(response.body);
           // รีเฟรชข้อมูลหลังจากลบสำเร็จ
           setState(() {
             _fetchCarsData(); // เรียกใช้ฟังก์ชันเพื่อดึงข้อมูลใหม่
@@ -463,9 +468,15 @@ class _MyCarsState extends State<MyCars> {
           children: [
             Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 50,
-                  backgroundImage: AssetImage('assets/images/Logo.png'),
+                  backgroundImage: widget.userData['image'] != null
+                      ? NetworkImage(widget.userData['image'])
+                      : const AssetImage('assets/images/Logo.png')
+                          as ImageProvider,
+                  onBackgroundImageError: (_, __) {
+                    // ถ้าภาพโหลดไม่ได้ ให้ใช้รูป fallback (ต้องใช้ SetState ถ้าจะให้เปลี่ยนรูป)
+                  },
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -536,10 +547,11 @@ class _MyCarsState extends State<MyCars> {
                     itemCount: _carsData.length,
                     itemBuilder: (context, index) {
                       final car = _carsData[index];
+                      print(_carsData[index]);
                       return _buildCarCard(
                         tid: int.parse(car['tid']
                             .toString()), // Ensure tid is passed as int
-                        imageUrl: car['image'] ?? 'assets/images/Logo.png',
+                        imageUrl: car['tract_image'] ?? '',
                         name: car['name_tract'] ?? 'ไม่ระบุ',
                         type: car['type_name_tract'].join(', ') ?? 'ไม่ระบุ',
                         location: car['address'] ?? 'ไม่ระบุ',
@@ -554,15 +566,17 @@ class _MyCarsState extends State<MyCars> {
   }
 
   Widget _buildCarCard({
-    required String imageUrl,
+    required String imageUrl, // เปลี่ยนเป็น String? รองรับ null
     required String name,
     required String type,
     required String location,
     required String price,
     required String rating,
     required String distance,
-    required int tid, // Use int here for tid
+    required int tid,
   }) {
+    print("🚗 Image URL: $imageUrl"); // Debug ดูว่ามีค่าหรือไม่
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
@@ -570,11 +584,19 @@ class _MyCarsState extends State<MyCars> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              "assets/images/Logo.png", // Use dynamic image URL here
-              width: 80.0,
-              height: 80.0,
+            Image.network(
+              imageUrl!, // ใช้ URL จาก userData หรือ URL พื้นฐาน
+              width: 50.0,
+              height: 50.0,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Image.asset(
+                  "assets/images/Logo.png",
+                  width: 80.0,
+                  height: 80.0,
+                  fit: BoxFit.cover,
+                );
+              },
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -597,12 +619,10 @@ class _MyCarsState extends State<MyCars> {
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green),
                         onPressed: () {
-                          // เมื่อกดที่ไอคอนค้นหา
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  DetailConPage(), // ไปยังหน้า SearchPage
+                              builder: (context) => DetailConPage(),
                             ),
                           );
                         },
@@ -613,21 +633,17 @@ class _MyCarsState extends State<MyCars> {
                       const SizedBox(width: 5),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
+                            backgroundColor: Colors.red),
                         onPressed: () async {
                           if (tid != null) {
-                            // ตรวจสอบว่า tid ไม่เป็น null
-                            await _deleteCar(tid
-                                .toString()); // แปลง tid เป็น String และเรียกฟังก์ชัน
+                            await _deleteCar(tid.toString());
                           } else {
                             print('tid is null');
                           }
                         },
-                        child: const Text(
-                          'ลบ',
-                          style: TextStyle(color: Colors.white, fontSize: 11),
-                        ),
+                        child: const Text('ลบ',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 11)),
                       ),
                     ],
                   ),

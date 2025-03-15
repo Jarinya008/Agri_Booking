@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/pages/Client/Me.dart';
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
+import 'package:app_agri_booking/pages/Contractor/ToobarCar.dart';
 
 import 'package:app_agri_booking/pages/General/Farm.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +18,6 @@ class Register extends StatefulWidget {
   const Register({super.key});
   final String imgbbApiKey = "a051ad7a04e7037b74d4d656e7d667e9";
 
-  get mid => null; // API Key ของคุณจาก ImgBB
-
   @override
   State<Register> createState() => _RegisterState();
 }
@@ -30,9 +29,8 @@ class _RegisterState extends State<Register> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController contractController = TextEditingController();
-  final TextEditingController addrassController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
   String? profileImage;
-
   double? lat;
   double? lng;
 
@@ -51,15 +49,14 @@ class _RegisterState extends State<Register> {
                     LatLng(lat ?? 13.7563, lng ?? 100.5018);
                 return GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target:
-                        initialLocation, // Use the previously selected location or the default
+                    target: initialLocation,
                     zoom: 12,
                   ),
                   mapType: MapType.normal,
                   onTap: (LatLng location) {
                     setDialogState(() {
                       lat = location.latitude;
-                      lng = location.longitude; // Update the selected location
+                      lng = location.longitude;
                     });
                   },
                   markers: lat != null && lng != null
@@ -77,15 +74,13 @@ class _RegisterState extends State<Register> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(
-                    context); // Close the dialog without selecting a location
+                Navigator.pop(context);
               },
               child: const Text('ยกเลิก'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context,
-                    LatLng(lat!, lng!)); // Return the selected location
+                Navigator.pop(context, LatLng(lat!, lng!));
               },
               child: const Text('ยืนยัน'),
             ),
@@ -108,8 +103,7 @@ class _RegisterState extends State<Register> {
         emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         phoneController.text.isEmpty ||
-        contractController.text.isEmpty ||
-        addrassController.text.isEmpty ||
+        addressController.text.isEmpty ||
         lat == null ||
         lng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -128,9 +122,9 @@ class _RegisterState extends State<Register> {
       'email': emailController.text,
       'password': passwordController.text,
       'phone': phoneController.text,
-      'image': imageUrl ?? 'default.jpg', // ใช้ค่าเริ่มต้นถ้าไม่มีรูป
+      'image': imageUrl ?? "",
       'contact': contractController.text,
-      'address': addrassController.text,
+      'address': addressController.text,
       'lat': lat,
       'lng': lng,
       'mtype': selectedMtype,
@@ -142,8 +136,11 @@ class _RegisterState extends State<Register> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(data),
       );
+      print("✅ สมัครสมาชิกสำเร็จ! Mtype: $selectedMtype");
+      print(jsonDecode(response.body)['users'][0]);
+      print(response.statusCode);
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(responseData['message'] ?? 'สมัครสมาชิกสำเร็จ')));
@@ -151,16 +148,21 @@ class _RegisterState extends State<Register> {
         if (selectedMtype == 0) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => MyCars(userData: data)),
+            MaterialPageRoute(
+                builder: (context) => ToolbarCar(
+                      userData: jsonDecode(response.body)['users'][0],
+                      value: 0,
+                    )),
           );
         } else if (selectedMtype == 1) {
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(
-          //       builder: (context) => (
-          //             userData: data,
-          //           )),
-          // );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ToobarC(
+                      userData: jsonDecode(response.body)['users'][0],
+                      value: 1,
+                    )),
+          );
         }
       } else {
         final responseData = jsonDecode(response.body);
@@ -436,7 +438,7 @@ class _RegisterState extends State<Register> {
 
                     const SizedBox(height: 10),
                     TextField(
-                      controller: addrassController,
+                      controller: addressController,
                       maxLength: 500,
                       decoration: const InputDecoration(
                         labelText: 'ที่อยู่',

@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final int mid;
+
+  const SearchPage(
+      {super.key, required this.mid, required Map<String, dynamic> userData});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -15,6 +21,15 @@ class _SearchPageState extends State<SearchPage> {
 
   bool isDistanceAscending = true;
   bool isPriceAscending = true;
+  List farms = []; // เก็บรายการฟาร์ม
+  bool isLoading = true; // เช็คสถานะการโหลด
+
+  @override
+  void initState() {
+    super.initState();
+    fetchFarms(); // เรียก API เมื่อหน้าโหลด
+  }
+
   List<Map<String, String>> searchResults = [
     {
       'name': 'รถเกี่ยวข้าวนาปี/นาปรัง',
@@ -31,6 +46,30 @@ class _SearchPageState extends State<SearchPage> {
         .where(
             (item) => item['name']!.toLowerCase().contains(query.toLowerCase()))
         .toList();
+  }
+
+  Future<void> fetchFarms() async {
+    final url =
+        "http://projectnodejs.thammadalok.com/AGribooking/client/farms/${widget.mid}";
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        print("🔹 API Response: ${response.body}"); // Log ข้อมูลที่ API ส่งมา
+        setState(() {
+          final decodedData = json.decode(response.body);
+          farms = decodedData['farms'] ?? []; // ดึงเฉพาะ farms
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Failed to load farms");
+      }
+    } catch (e) {
+      print("Error fetching farms: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override

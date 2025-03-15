@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class HomeClientPage extends StatelessWidget {
-  const HomeClientPage({super.key});
+  final dynamic userData; // รับข้อมูลที่ส่งมา
+
+  const HomeClientPage({super.key, required this.userData});
 
   // Function to fetch data from the API
   Future<List<GetAllTracts>> fetchData() async {
@@ -66,8 +68,9 @@ class HomeClientPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              SearchPage(), // ไปยังหน้า SearchPage
+                          builder: (context) => SearchPage(
+                              mid: userData['mid'],
+                              userData: {}), // ไปยังหน้า SearchPage
                         ),
                       );
                     },
@@ -85,8 +88,9 @@ class HomeClientPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          SearchPage(), // ไปยังหน้า SearchPage พร้อมส่งค่าคำค้นหา
+                      builder: (context) => SearchPage(
+                          mid: userData['mid'],
+                          userData: {}), // ไปยังหน้า SearchPage พร้อมส่งค่าคำค้นหา
                     ),
                   );
                 },

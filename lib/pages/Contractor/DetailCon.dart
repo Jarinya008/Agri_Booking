@@ -1,4 +1,5 @@
 import 'package:app_agri_booking/pages/Client/Report.dart';
+import 'package:app_agri_booking/pages/Contractor/EditCar.dart';
 import 'package:flutter/material.dart';
 
 class DetailConPage extends StatefulWidget {
@@ -78,9 +79,14 @@ class _DetailsPageState extends State<DetailConPage> {
         Center(
           child: ElevatedButton(
             onPressed: () {
-              // ทำการดำเนินการเมื่อปุ่มถูกกด เช่น นำไปยังหน้าโปรไฟล์
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EditCarPage(),
+                ),
+              );
             },
-            child: const Text('ดูโปรไฟล์เจ้าของรถ'),
+            child: const Text('แก้ไขข้อมูลรถ'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange.shade300, // สีพื้นหลัง
               foregroundColor: Colors.white, // ตัวหนังสือสีขาว
