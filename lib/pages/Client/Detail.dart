@@ -1,3 +1,4 @@
+import 'package:app_agri_booking/pages/Client/QueueCar.dart';
 import 'package:app_agri_booking/pages/Client/Report.dart';
 import 'package:flutter/material.dart';
 
@@ -58,7 +59,13 @@ class _DetailsPageState extends State<DetailsPage> {
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 12),
           ),
-          onPressed: () {},
+          onPressed: () {
+            // กดแล้วทำอะไร
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => QueueCarScreen()),
+            );
+          },
           child: const Text('จองคิวรถ', style: TextStyle(fontSize: 18)),
         ),
       ),
