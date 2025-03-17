@@ -138,7 +138,6 @@ class _HomeContractorPageState extends State<HomeContractorPage> {
   }
 }
 
-//หน้ารายละเอียดคิวงาน
 class EventDetailPage extends StatelessWidget {
   final String title;
   final String details;
