@@ -1,14 +1,92 @@
+import 'dart:convert';
+
 import 'package:app_agri_booking/pages/Client/Report.dart';
 import 'package:app_agri_booking/pages/Contractor/EditCar.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class DetailConPage extends StatefulWidget {
+  final int tid;
+  final int mid;
+  const DetailConPage({super.key, required this.tid, required this.mid});
   @override
   _DetailsPageState createState() => _DetailsPageState();
 }
 
 class _DetailsPageState extends State<DetailConPage> {
   int _selectedTab = 0; // 0 = รีวิว, 1 = ตารางงาน
+  Map<String, dynamic> tractData = {}; // เก็บข้อมูลจาก API
+  Map<String, dynamic> queueData = {}; // เก็บข้อมูลจาก API
+  bool isLoading = true; // เช็คสถานะโหลดข้อมูล
+  String? errorMessage; // ข้อความ error
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.tid);
+    print(widget.mid);
+    fetchTractDetails();
+    fetchQueueDetails();
+  }
+
+  Future<void> fetchQueueDetails() async {
+    final url = Uri.parse(
+        "http://projectnodejs.thammadalok.com/AGribooking/contractor/myqueue/${widget.mid}");
+
+    print("กำลังดึงข้อมูลจาก: $url"); // ✅ เช็ก URL
+    print("MID ที่ส่งไป: ${widget.mid}"); // ✅ เช็กค่าที่ส่งไป
+
+    try {
+      final response = await http.get(url);
+
+      print("Response Code: ${response.statusCode}"); // ✅ ดูว่าตอบ 200 ไหม
+      print(
+          "Response Body: ${response.body}"); // ✅ ดูว่า API ส่งข้อมูลอะไรกลับมา
+
+      if (response.statusCode == 200) {
+        setState(() {
+          queueData = json.decode(response.body);
+          print("queueData: $queueData"); // ✅ เช็กโครงสร้าง JSON
+        });
+      } else {
+        setState(() {
+          errorMessage = "ไม่พบข้อมูล หรือเกิดข้อผิดพลาด";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "เกิดข้อผิดพลาด: $e";
+      });
+    }
+  }
+
+  Future<void> fetchTractDetails() async {
+    final url = Uri.parse(
+        "http://projectnodejs.thammadalok.com/AGribooking/detail/tract?tid=${widget.tid}");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          tractData = json.decode(response.body);
+          print("\n\n\n");
+          print(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = "ไม่พบข้อมูล หรือเกิดข้อผิดพลาด";
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "เกิดข้อผิดพลาด: $e";
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +143,9 @@ class _DetailsPageState extends State<DetailConPage> {
           height: 200, // กำหนดความสูงของรูป
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            image: const DecorationImage(
-              image: NetworkImage(
-                  'https://www.deere.co.th/assets/images/tractors/5-family-utility-tractors/5075e-utility-tractor/5075E_large_064fa3b6d52359673b2b6fd650d5ced239a8b9b6.jpg'), // ใช้ URL ของรูปภาพ
-              fit: BoxFit.cover, // รูปภาพจะขยายให้เต็มพื้นที่
+            image: DecorationImage(
+              image: NetworkImage(tractData['tract_image'] ?? ''),
+              fit: BoxFit.cover,
             ),
           ),
         ),
@@ -112,15 +189,15 @@ class _DetailsPageState extends State<DetailConPage> {
                 width: 1, // เส้นกรอบ
               ),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ชื่อรถ: รถตัดอ้อยขนาดใหญ่ รุ่น CH570',
+                  "ชื่อรถ: ",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text('จำนวนรถ: 5 คัน'),
-                Text('ประเภท: รถตัด'),
+                Text('จำนวนรถ: '),
+                Text('ประเภท: '),
               ],
             ),
           ),
@@ -298,9 +375,41 @@ class _DetailsPageState extends State<DetailConPage> {
 
 //หน้าตารางงาน
   Widget _buildSchedule() {
-    return const Center(
-      child: Text('ตารางงาน (ต้องเพิ่มข้อมูลตารางงานที่นี่)',
-          style: TextStyle(fontWeight: FontWeight.bold)),
-    );
+    return queueData.isNotEmpty
+        ? ListView.builder(
+            shrinkWrap: true, // ให้ขนาดพอดีกับเนื้อหา
+            physics: const NeverScrollableScrollPhysics(), // ปิดสกรอล์ซ้อนกัน
+            itemCount: queueData.length,
+            itemBuilder: (context, index) {
+              final queue = queueData[index]; // ดึงข้อมูลแต่ละรายการ
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "ชื่อคิว: ${queue['name_qt']}",
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text("วันที่เริ่มงาน: ${queue['date_start']}"),
+                      Text("วันที่สิ้นสุด: ${queue['date_end']}"),
+                      Text("รายละเอียด: ${queue['detail_qt']}"),
+                      Text("จำนวนที่จอง: ${queue['amount_qt']}"),
+                      Text("สถานะคิว: ${queue['acc_status']}"),
+                      Text("สถานะดำเนินงาน: ${queue['ope_status']}"),
+                    ],
+                  ),
+                ),
+              );
+            },
+          )
+        : const Center(
+            child: Text(
+              'ยังไม่มีการจองคิวรถ',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          );
   }
 }

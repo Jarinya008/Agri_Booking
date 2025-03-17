@@ -1,11 +1,33 @@
+import 'dart:convert';
+import 'package:app_agri_booking/pages/Client/Queue.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class QueueCarScreen extends StatefulWidget {
+  final int mid;
+
+  final dynamic tractData;
+  final int fid;
+  const QueueCarScreen(
+      {super.key,
+      required this.tractData,
+      required this.mid,
+      required this.fid});
+
   @override
   _QueueCarScreenState createState() => _QueueCarScreenState();
 }
 
 class _QueueCarScreenState extends State<QueueCarScreen> {
+  @override
+  void initState() {
+    super.initState();
+    print(widget.tractData);
+    print(widget.mid);
+    print(widget.fid);
+  }
+
   TextEditingController nameController = TextEditingController();
   TextEditingController areaController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
@@ -64,6 +86,61 @@ class _QueueCarScreenState extends State<QueueCarScreen> {
     }
   }
 
+  Future<void> submitQueueData() async {
+    const String apiUrl =
+        "http://projectnodejs.thammadalok.com/AGribooking/client/insert/queue"; // เปลี่ยนเป็น URL จริงของ API
+
+// แปลง DateTime และ TimeOfDay ให้อยู่ในรูปแบบที่ต้องการ
+    String formatDateTime(DateTime date, TimeOfDay time) {
+      final DateTime combined =
+          DateTime(date.year, date.month, date.day, time.hour, time.minute);
+      return DateFormat('yyyy-MM-dd HH:mm:ss').format(combined);
+    }
+
+    Map<String, dynamic> requestData = {
+      "name_qt": nameController.text,
+      "date_start": formatDateTime(startDate, startTime), // ✅ แปลงวันที่เริ่ม
+      "detail_qt": detailsController.text,
+      "amount_qt": areaController.text,
+      "date_end": formatDateTime(endDate, endTime), // ✅ แปลงวันที่สิ้นสุด
+      "mid": widget.mid,
+      "fid": widget.fid,
+      "tid": widget.tractData['tid'],
+    };
+    print(requestData);
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ จองคิวสำเร็จ!")),
+        );
+
+        // ✅ นำทางไปหน้า QueuePage พร้อมส่ง mid
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QueuePage(mid: widget.mid),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("ข้อมูลไม่ถูกต้องกรุณากรอกใหม่")),
+        );
+      }
+    } catch (e) {
+      print("Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,9 +154,10 @@ class _QueueCarScreenState extends State<QueueCarScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("🚜 รถตัดอ้อยขนาดใหญ่ รุ่น CH570"),
-              const Text("📌 ประเภทการจอง: รถตัดอ้อย"),
-              const Text("💰 ราคา 150 บาท/ไร่"),
+              Text("🚜 ${widget.tractData['name_tract']?.toString() ?? '-'}"),
+              Text(
+                  "📌 ประเภทการจอง:  ${widget.tractData['type_name_tract']?.toString() ?? '-'}"),
+              Text("💰 ราคา  ${widget.tractData['price']?.toString() ?? '-'}"),
               const SizedBox(height: 10),
               TextField(
                 controller: nameController,
@@ -166,19 +244,16 @@ class _QueueCarScreenState extends State<QueueCarScreen> {
               ),
               const SizedBox(height: 20),
               Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // ฟังก์ชันยืนยันข้อมูล
-                  },
-                  child: const Text("ยืนยัน"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 50, vertical: 15),
-                  ),
+                  child: ElevatedButton(
+                onPressed: submitQueueData, // เรียกฟังก์ชันเมื่อกดปุ่ม
+                child: const Text("ยืนยัน"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                 ),
-              ),
+              )),
             ],
           ),
         ),

@@ -622,7 +622,10 @@ class _MyCarsState extends State<MyCars> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => DetailConPage(),
+                              builder: (context) => DetailConPage(
+                                tid: tid,
+                                mid: widget.userData['mid'],
+                              ),
                             ),
                           );
                         },

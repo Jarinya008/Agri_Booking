@@ -1,14 +1,53 @@
+import 'dart:convert';
+
 import 'package:app_agri_booking/pages/Client/Search.dart';
 import 'package:app_agri_booking/pages/Client/ToobarC.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class QueuePage extends StatefulWidget {
+  final int mid;
+  const QueuePage({super.key, required this.mid});
   @override
   _QueuePageState createState() => _QueuePageState();
 }
 
 class _QueuePageState extends State<QueuePage> {
   int selectedTabIndex = 0;
+
+  List<Map<String, dynamic>> queueData = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchQueueData();
+  }
+
+  // 📌 ฟังก์ชันดึงข้อมูลจาก API
+  Future<void> fetchQueueData() async {
+    final String apiUrl =
+        "http://projectnodejs.thammadalok.com/AGribooking/client/myqueue/${widget.mid}";
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        print(response.body);
+        List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          queueData = List<Map<String, dynamic>>.from(data);
+          isLoading = false;
+        });
+      } else {
+        setState(() => isLoading = false);
+        print("⚠️ Error: ${response.body}");
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      print("❌ Fetch error: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +125,24 @@ class _QueuePageState extends State<QueuePage> {
               style: TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 16.0),
-            _buildQueueItem('เกี่ยวข้าว', 'รถเกี่ยวววว คูโบ5425', '0287595554',
-                'สถานะกำลังเดินทาง'),
-            // Add more items as needed
+
+            // ✅ ใช้ ListView.builder เพื่อแสดงรายการ
+            Expanded(
+              child: queueData.isEmpty
+                  ? const Center(child: Text("ไม่มีข้อมูลคิว"))
+                  : ListView.builder(
+                      itemCount: queueData.length,
+                      itemBuilder: (context, index) {
+                        final queue = queueData[index];
+                        return _buildQueueItem(
+                          queue['name_qt'] ?? "ไม่ระบุ",
+                          queue['name_tract'] ?? "ไม่ระบุ",
+                          queue['phone'] ?? "ไม่ระบุ",
+                          queue['acc_status'] ?? "ไม่ระบุ",
+                        );
+                      },
+                    ),
+            ),
           ],
         ),
       ),

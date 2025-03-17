@@ -10,8 +10,9 @@ import 'package:http/http.dart' as http;
 
 class HomeClientPage extends StatelessWidget {
   final dynamic userData; // รับข้อมูลที่ส่งมา
-
-  const HomeClientPage({super.key, required this.userData});
+  final ValueNotifier<int?> selectedFarmId =
+      ValueNotifier<int?>(null); // ✅ เพิ่มตัวแปร
+  HomeClientPage({super.key, required this.userData});
 
   // Function to fetch data from the API
   Future<List<GetAllTracts>> fetchData() async {
@@ -22,6 +23,24 @@ class HomeClientPage extends StatelessWidget {
           response.body); // ใช้ฟังก์ชันที่แปลงข้อมูล JSON
     } else {
       throw Exception('Failed to load data');
+    }
+  }
+
+  // ฟังก์ชันดึงข้อมูลไร่นาของ `mid`
+  Future<List<Map<String, dynamic>>> fetchFarms() async {
+    final response = await http.get(
+      Uri.parse(
+          "http://projectnodejs.thammadalok.com/AGribooking/client/farms/${userData['mid']}"),
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      final decodedData = json.decode(response.body);
+      return (decodedData['farms'] as List)
+          .map(
+              (farms) => {'fid': farms['fid'], 'name_farm': farms['name_farm']})
+          .toList();
+    } else {
+      throw Exception("Failed to load farms");
     }
   }
 
@@ -90,7 +109,8 @@ class HomeClientPage extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => SearchPage(
                           mid: userData['mid'],
-                          userData: {}), // ไปยังหน้า SearchPage พร้อมส่งค่าคำค้นหา
+                          userData:
+                              userData), // ไปยังหน้า SearchPage พร้อมส่งค่าคำค้นหา
                     ),
                   );
                 },
@@ -125,6 +145,51 @@ class HomeClientPage extends StatelessWidget {
                     },
                   );
                 }).toList(),
+              ),
+            ),
+            // 4️⃣ **Dropdown เลือกไร่นา**
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: fetchFarms(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text("Error: ${snapshot.error}");
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text("ไม่มีข้อมูลไร่นา");
+                  }
+
+                  List<Map<String, dynamic>> farms = snapshot.data!;
+                  selectedFarmId.value =
+                      farms.first['fid']; // ✅ ตั้งค่าเริ่มต้น
+
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return DropdownButtonFormField<int>(
+                        value: selectedFarmId.value,
+                        items: farms.map((farm) {
+                          return DropdownMenuItem<int>(
+                            value: farm['fid'],
+                            child: Text(farm['name_farm'] ?? "ไม่ทราบชื่อ"),
+                          );
+                        }).toList(),
+                        onChanged: (newValue) {
+                          setState(() {
+                            selectedFarmId.value = newValue; // ✅ อัปเดตค่า
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'เลือกไร่นาของคุณ',
+                          border: OutlineInputBorder(),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
 
@@ -237,12 +302,21 @@ class HomeClientPage extends StatelessWidget {
                                               35.0, // กำหนดความสูงที่ต้องการ
                                           child: ElevatedButton(
                                             onPressed: () {
+                                              print(
+                                                  "ส่งค่า fid: ${selectedFarmId.value} ไปยังหน้า DetailsPage"); // ✅ Debug
+                                              int fidToSend =
+                                                  selectedFarmId.value ?? 0;
                                               // ฟังก์ชันที่ทำงานเมื่อกดปุ่ม
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (context) =>
-                                                      DetailsPage(), // เปลี่ยนเป็นหน้าที่ต้องการ
+                                                      DetailsPage(
+                                                    tid: tract.tid,
+                                                    mid: userData['mid'],
+                                                    fid:
+                                                        fidToSend, // อัปเดตค่า fid ที่เลือก,
+                                                  ), // เปลี่ยนเป็นหน้าที่ต้องการ
                                                 ),
                                               );
                                             },

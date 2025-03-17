@@ -1,14 +1,60 @@
+import 'dart:convert';
+
 import 'package:app_agri_booking/pages/Client/QueueCar.dart';
 import 'package:app_agri_booking/pages/Client/Report.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class DetailsPage extends StatefulWidget {
+  final int mid;
+  final int tid;
+  final int fid;
+  const DetailsPage(
+      {super.key, required this.tid, required this.mid, required this.fid});
   @override
   _DetailsPageState createState() => _DetailsPageState();
 }
 
 class _DetailsPageState extends State<DetailsPage> {
   int _selectedTab = 0; // 0 = รีวิว, 1 = ตารางงาน
+  Map<String, dynamic> tractData = {}; // เก็บข้อมูลจาก API
+  bool isLoading = true; // เช็คสถานะโหลดข้อมูล
+  String? errorMessage; // ข้อความ error
+  @override
+  void initState() {
+    super.initState();
+    print(widget.tid);
+    print(widget.mid);
+    print(widget.fid);
+    fetchTractDetails();
+  }
+
+  Future<void> fetchTractDetails() async {
+    final url = Uri.parse(
+        "http://projectnodejs.thammadalok.com/AGribooking/detail/tract?tid=${widget.tid}");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        setState(() {
+          tractData = json.decode(response.body);
+          print(tractData);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = "ไม่พบข้อมูล หรือเกิดข้อผิดพลาด";
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = "เกิดข้อผิดพลาด: $e";
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +109,12 @@ class _DetailsPageState extends State<DetailsPage> {
             // กดแล้วทำอะไร
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => QueueCarScreen()),
+              MaterialPageRoute(
+                  builder: (context) => QueueCarScreen(
+                        tractData: tractData,
+                        mid: widget.mid,
+                        fid: widget.fid,
+                      )),
             );
           },
           child: const Text('จองคิวรถ', style: TextStyle(fontSize: 18)),
@@ -83,10 +134,9 @@ class _DetailsPageState extends State<DetailsPage> {
           height: 200, // กำหนดความสูงของรูป
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            image: const DecorationImage(
-              image: NetworkImage(
-                  'https://www.deere.co.th/assets/images/tractors/5-family-utility-tractors/5075e-utility-tractor/5075E_large_064fa3b6d52359673b2b6fd650d5ced239a8b9b6.jpg'), // ใช้ URL ของรูปภาพ
-              fit: BoxFit.cover, // รูปภาพจะขยายให้เต็มพื้นที่
+            image: DecorationImage(
+              image: NetworkImage(tractData['tract_image'] ?? ''),
+              fit: BoxFit.cover,
             ),
           ),
         ),

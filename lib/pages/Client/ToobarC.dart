@@ -32,7 +32,9 @@ class _ToobarCState extends State<ToobarC> {
       if (index == 0) {
         curretnPage = HomeClientPage(userData: widget.userData);
       } else if (index == 1) {
-        curretnPage = QueuePage();
+        curretnPage = QueuePage(
+          mid: widget.userData['mid'],
+        );
       } else if (index == 2) {
         curretnPage = NotificationPage();
       } else if (index == 3) {
