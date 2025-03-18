@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 class DetailConPage extends StatefulWidget {
   final int tid;
   final int mid;
-  const DetailConPage({super.key, required this.tid, required this.mid});
+  DetailConPage({super.key, required this.tid, required this.mid});
   @override
   _DetailsPageState createState() => _DetailsPageState();
 }
@@ -144,14 +144,18 @@ class _DetailsPageState extends State<DetailConPage> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             image: DecorationImage(
-              image: NetworkImage(tractData['tract_image'] ?? ''),
+              image: NetworkImage(
+                tractData['tract_image'] != null &&
+                        tractData['tract_image'] != ''
+                    ? tractData['tract_image']
+                    : 'https://www.forest.go.th/training/wp-content/uploads/sites/17/2015/03/noimages.png', // ใช้ภาพดีฟอลต์เมื่อไม่มี URL
+              ),
               fit: BoxFit.cover,
             ),
           ),
         ),
 
         const SizedBox(height: 10),
-
         // ปุ่มดูโปรไฟล์เจ้าของรถ
         Center(
           child: ElevatedButton(
@@ -174,9 +178,7 @@ class _DetailsPageState extends State<DetailConPage> {
             ),
           ),
         ),
-
         const SizedBox(height: 10),
-
         // ข้อมูลรถ (เพิ่มกรอบ)
         Center(
           child: Container(
@@ -193,11 +195,12 @@ class _DetailsPageState extends State<DetailConPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "ชื่อรถ: ",
+                  'ชื่อรถ: ${tractData['name_tract'] ?? 'ไม่มีข้อมูล'}', // แสดงชื่อรถ
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text('จำนวนรถ: '),
-                Text('ประเภท: '),
+                Text('จำนวนรถ: ${tractData['amount'] ?? 0}คัน'),
+                Text(
+                    'ประเภท: ${tractData['type_name_tract'] != null && tractData['type_name_tract'].isNotEmpty ? tractData['type_name_tract'][0] : 'ไม่มีข้อมูล'}'),
               ],
             ),
           ),
@@ -212,18 +215,18 @@ class _DetailsPageState extends State<DetailConPage> {
             color: Colors.orange.shade200,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'ชื่อผู้รับจ้าง: พ่อใหญ่บุญ',
+                'ชื่อผู้รับจ้าง:  ${tractData['username'] ?? 'ไม่มีข้อมูล'}',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              Text('ข้อมูลติดต่อ: เบอร์โทร 085-222-0000'),
-              Text('ที่อยู่: ตำบลเมืองพล อำเภอเมืองพล จังหวัดขอนแก่น'),
+              Text('ข้อมูลติดต่อ:  ${tractData['contact'] ?? 'ไม่มีข้อมูล'}'),
+              Text('ที่อยู่: ${tractData['address'] ?? 'ไม่มีข้อมูล'}'),
               SizedBox(height: 6),
               Text(
-                'รายละเอียดเพิ่มเติม: รับงานตัดอ้อยทุกพื้นที่ในประเทศไทย และรับงานตลอดฤดูกาล ยกเว้นวันน้ำขังดินชื้น',
+                'รายละเอียดเพิ่มเติม:  ${tractData['description'] ?? 'ไม่มีข้อมูล'}',
               ),
             ],
           ),
@@ -239,8 +242,8 @@ class _DetailsPageState extends State<DetailConPage> {
               const BoxDecoration(color: Color.fromARGB(255, 41, 200, 49)
                   //borderRadius: BorderRadius.circular(8),
                   ),
-          child: const Text(
-            'ราคา 600 บาท/ไร่',
+          child: Text(
+            'ราคา  ${tractData['price'] ?? 'ไม่มีข้อมูล'}',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),

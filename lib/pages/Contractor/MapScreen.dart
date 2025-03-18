@@ -410,8 +410,11 @@ class MapScreen extends StatefulWidget {
   final double farmLat;
   final double farmLng;
 
-  const MapScreen({Key? key, required this.farmLat, required this.farmLng})
-      : super(key: key);
+  const MapScreen({
+    Key? key,
+    required this.farmLat,
+    required this.farmLng,
+  }) : super(key: key);
 
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -421,14 +424,50 @@ class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _mapController;
   Position? _currentPosition;
   Set<Marker> _markers = {};
+  Map<String, dynamic> queueData = {}; // เก็บข้อมูลจาก API
   Set<Polyline> _polylines = {};
   List<LatLng> _routeCoords = [];
+  bool isLoading = true; // เช็คสถานะโหลดข้อมูล
+  String? errorMessage; // ข้อความ error
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    //fetchQueueDetails();
   }
+
+//เส้นจองคิว
+  // Future<void> fetchQueueDetails() async {
+  //   final url = Uri.parse(
+  //       "http://projectnodejs.thammadalok.com/AGribooking/contractor/myqueue/${widget.mid}");
+
+  //   print("กำลังดึงข้อมูลจาก: $url"); // ✅ เช็ก URL
+  //   print("MID ที่ส่งไป: ${widget.mid}"); // ✅ เช็กค่าที่ส่งไป
+
+  //   try {
+  //     final response = await http.get(url);
+
+  //     print("Response Code: ${response.statusCode}"); // ✅ ดูว่าตอบ 200 ไหม
+  //     print(
+  //         "Response Body: ${response.body}"); // ✅ ดูว่า API ส่งข้อมูลอะไรกลับมา
+
+  //     if (response.statusCode == 200) {
+  //       setState(() {
+  //         queueData = json.decode(response.body);
+  //         print("queueData: $queueData"); // ✅ เช็กโครงสร้าง JSON
+  //       });
+  //     } else {
+  //       setState(() {
+  //         errorMessage = "ไม่พบข้อมูล หรือเกิดข้อผิดพลาด";
+  //       });
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       errorMessage = "เกิดข้อผิดพลาด: $e";
+  //     });
+  //   }
+  // }
 
   Future<void> _getCurrentLocation() async {
     Position position = await Geolocator.getCurrentPosition(
@@ -591,29 +630,201 @@ class _MapScreenState extends State<MapScreen> {
                   ),
           ),
 
-          // ครึ่งจอหลัง: แสดงข้อความของคุณ
           Expanded(
             flex: 1, // ครึ่งหนึ่งของจอ
             child: Container(
               color: Colors.white, // พื้นหลังสีขาว
               padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "🌟 ข้อความของฉัน 🌟",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "นี่คือตัวอย่างข้อความที่คุณต้องการแสดงด้านล่างของแผนที่",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
+              child: SingleChildScrollView(
+                // ทำให้เลื่อนได้
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // หัวข้อหลัก
+                    const Text(
+                      "งานตัดอ้อย",
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "รถตัดอ้อยขนาดใหญ่ รุ่น CH570",
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                    ),
+                    Text(
+                      "ประเภท รถตัดอ้อย",
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                    ),
+
+                    const Divider(thickness: 1, color: Colors.grey),
+                    const SizedBox(height: 16),
+
+                    // เวลางาน
+                    const Row(
+                      children: [
+                        Icon(Icons.access_time, color: Colors.black54),
+                        SizedBox(width: 8),
+                        Text("3/9/2024 09.00 → 3/9/2024 19.00",
+                            style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // สถานที่
+                    const Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.black54),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "ตำบลนาคำ อำเภอนาคำ จังหวัดสงขลา\n16/50 บ้านนาคำ ที่ติดถนนตรงข้ามร้านขายของชำ",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // เบอร์โทรศัพท์ + ปุ่มดูข้อมูลผู้จ้าง
+                    Row(
+                      children: [
+                        const Icon(Icons.phone, color: Colors.black54),
+                        const SizedBox(width: 8),
+                        const Text("0958888888",
+                            style: TextStyle(fontSize: 16)),
+                        const Spacer(),
+                        ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  contentPadding: const EdgeInsets.all(20),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const CircleAvatar(
+                                        radius: 50,
+                                        backgroundImage: AssetImage(
+                                            'assets/images/Logo.png'), // เปลี่ยนเป็น URL หรือ NetworkImage ได้
+                                      ),
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        "สมชาย มงคล", // ชื่อผู้จ้าง
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "095-888-8888", // เบอร์โทรศัพท์
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: Colors.grey[700]),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.redAccent,
+                                          foregroundColor: Colors.white,
+                                        ),
+                                        child: const Text("ปิด"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orangeAccent,
+                            foregroundColor: Colors.black,
+                          ),
+                          child: const Text("ข้อมูลผู้จ้าง"),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // จำนวนไร่
+                    const Row(
+                      children: [
+                        Icon(Icons.agriculture, color: Colors.black54),
+                        SizedBox(width: 8),
+                        Text("จำนวน 14 ไร่", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    Text(
+                      "รายละเอียดงาน ตัดอ้อย 14 ไร่ ต้องการงานที่เร็ว",
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                    ),
+
+                    const Divider(thickness: 1, color: Colors.grey),
+                    const SizedBox(height: 16),
+
+                    // ค่าจ้าง
+                    const Row(
+                      children: [
+                        Icon(Icons.monetization_on, color: Colors.black54),
+                        SizedBox(width: 8),
+                        Text("150 บาท/ไร่", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[300],
+                              foregroundColor: Colors.black,
+                            ),
+                            child: const Text("กำลังเดินทาง"),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward,
+                              color: Colors.black54),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text("กำลังทำงาน"),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward,
+                              color: Colors.black54),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[400],
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text("ทำงานเสร็จเรียบร้อย"),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+          )
         ],
       ),
     );
