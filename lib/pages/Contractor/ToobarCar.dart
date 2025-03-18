@@ -33,7 +33,7 @@ class _ToolbarCarState extends State<ToolbarCar> {
       if (index == 0) {
         currentPage = HomeContractorPage(userData: widget.userData);
       } else if (index == 1) {
-        currentPage = NotificationPage();
+        currentPage = NotificationPage(mid: widget.userData['mid']);
       } else if (index == 2) {
         currentPage = MyCars(
           userData: widget.userData,

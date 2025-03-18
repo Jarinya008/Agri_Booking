@@ -23,11 +23,14 @@ class _SearchPageState extends State<SearchPage> {
   bool isPriceAscending = true;
   List farms = []; // เก็บรายการฟาร์ม
   bool isLoading = true; // เช็คสถานะการโหลด
+  List<dynamic> farmsList = []; // เก็บรายการที่นา
+  bool isFarmLoading = true; // เช็คสถานะโหลดข้อมูล
 
   @override
   void initState() {
     super.initState();
     fetchFarms(); // เรียก API เมื่อหน้าโหลด
+    print(farms);
   }
 
   List<Map<String, String>> searchResults = [
@@ -55,11 +58,11 @@ class _SearchPageState extends State<SearchPage> {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        print("🔹 API Response: ${response.body}"); // Log ข้อมูลที่ API ส่งมา
+        print("🔹 API Response: ${response.body}"); // Log ข้อมูล API
         setState(() {
           final decodedData = json.decode(response.body);
-          farms = decodedData['farms'] ?? []; // ดึงเฉพาะ farms
-          isLoading = false;
+          farmsList = decodedData['farms'] ?? []; // ดึงรายการที่นา
+          isFarmLoading = false;
         });
       } else {
         throw Exception("Failed to load farms");
@@ -67,7 +70,43 @@ class _SearchPageState extends State<SearchPage> {
     } catch (e) {
       print("Error fetching farms: $e");
       setState(() {
-        isLoading = false;
+        isFarmLoading = false;
+      });
+    }
+  }
+
+  Future<void> searchTractors() async {
+    final url = Uri.parse("http://projectnodejs.thammadalok.com/member/search");
+
+    try {
+      final response = await http.get(url.replace(queryParameters: {
+        'search': query,
+        'price': isPriceAscending ? 'ASC' : 'DESC',
+        'name_type_tract': selectedType == 'ประเภท' ? null : selectedType,
+        'farm_id': selectedTypeFarm,
+        'member_id': widget.mid.toString(),
+        'sort_distance': isDistanceAscending ? 'ASC' : 'DESC',
+        'sort_price': isPriceAscending ? 'ASC' : 'DESC',
+      }));
+
+      if (response.statusCode == 200) {
+        final decodedData = json.decode(response.body);
+
+        if (decodedData['success']) {
+          setState(() {
+            farmsList = decodedData['data'];
+            isFarmLoading = false;
+          });
+        } else {
+          throw Exception("Search failed.");
+        }
+      } else {
+        throw Exception("Failed to fetch tractors.");
+      }
+    } catch (e) {
+      print("Error searching tractors: $e");
+      setState(() {
+        isFarmLoading = false;
       });
     }
   }
@@ -100,17 +139,10 @@ class _SearchPageState extends State<SearchPage> {
                         setState(() {
                           query = value;
                         });
+                        searchTractors();
                       },
                       decoration: InputDecoration(
                         hintText: 'พิมพ์คำที่ต้องการค้นหา...',
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 13.0),
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[200],
                       ),
                     ),
                   ),
@@ -118,57 +150,41 @@ class _SearchPageState extends State<SearchPage> {
                   // ปุ่ม "ที่นา"
                   ElevatedButton(
                     onPressed: () {
-                      // แสดงป๊อบอัพเมื่อกดปุ่ม
+                      if (isFarmLoading) return; // หากกำลังโหลด ไม่ต้องแสดง
+
                       showModalBottomSheet(
                         context: context,
                         builder: (BuildContext context) {
                           return Container(
                             padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ListTile(
-                                  title:
-                                      const Text('ที่นา 1 ชัยภูมิ'), //ชื่อที่นา
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTypeFarm =
-                                          'ชัยภูมิ'; //ดึงที่อยู่มาใส่
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                ListTile(
-                                  title: const Text('ที่นา 2 ขอนแก่น'),
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTypeFarm =
-                                          'ขอนแก่น'; //ดึงที่อยู่มาใส่
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                ListTile(
-                                  title: const Text('ที่นา 3 สารคาม บานนา'),
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTypeFarm =
-                                          'สารคามมมมมมมมมมมมมมมมมมม';
-                                    });
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                              ],
-                            ),
+                            child: isFarmLoading
+                                ? const Center(
+                                    child:
+                                        CircularProgressIndicator()) // แสดงโหลด
+                                : Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: farmsList.map((farm) {
+                                      return ListTile(
+                                        title: Text(
+                                            farm['name_farm']), // ใช้ชื่อที่นา
+                                        onTap: () {
+                                          setState(() {
+                                            selectedTypeFarm = farm[
+                                                'name_farm']; // บันทึกค่าที่นา
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    }).toList(),
+                                  ),
                           );
                         },
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          const Color.fromARGB(255, 232, 134, 6), // สีของปุ่ม
+                      backgroundColor: const Color.fromARGB(255, 232, 134, 6),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // มุมโค้งมน
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 12),
@@ -176,12 +192,11 @@ class _SearchPageState extends State<SearchPage> {
                     child: Text(
                       selectedTypeFarm.length > 5
                           ? '${selectedTypeFarm.substring(0, 5)}...'
-                          : selectedTypeFarm, // แสดงข้อความสั้นพร้อม ...
+                          : selectedTypeFarm,
                       style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
                     ),
                   ),
                 ],
