@@ -13,6 +13,7 @@ import 'package:app_agri_booking/pages/Contractor/MyCars.dart';
 import 'package:app_agri_booking/pages/General/map.dart'; // Import the map page
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -35,6 +36,11 @@ class _RegisterState extends State<Register> {
   double? lng;
 
   Future<void> _openMapDialog() async {
+    // ดึงตำแหน่งปัจจุบันของผู้ใช้
+    Position position = await _getCurrentLocation();
+
+    LatLng initialLocation = LatLng(position.latitude, position.longitude);
+
     LatLng? selectedLocation = await showDialog<LatLng>(
       context: context,
       builder: (context) {
@@ -45,14 +51,12 @@ class _RegisterState extends State<Register> {
             height: 400,
             child: StatefulBuilder(
               builder: (context, setDialogState) {
-                LatLng initialLocation =
-                    LatLng(lat ?? 13.7563, lng ?? 100.5018);
                 return GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: initialLocation,
                     zoom: 12,
                   ),
-                  mapType: MapType.normal,
+                  mapType: MapType.satellite,
                   onTap: (LatLng location) {
                     setDialogState(() {
                       lat = location.latitude;
@@ -66,7 +70,14 @@ class _RegisterState extends State<Register> {
                             position: LatLng(lat!, lng!),
                           )
                         }
-                      : {},
+                      : {
+                          Marker(
+                            markerId: const MarkerId('current_location'),
+                            position: initialLocation, // ตำแหน่งปัจจุบัน
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueBlue),
+                          )
+                        },
                 );
               },
             ),
@@ -95,6 +106,31 @@ class _RegisterState extends State<Register> {
         lng = selectedLocation.longitude;
       });
     }
+  }
+
+  Future<Position> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // ตรวจสอบสถานะของ location service
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // หาก location service ไม่เปิด ให้แสดงข้อความ
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // หากไม่อนุญาตให้เข้าถึงตำแหน่ง
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    // หากได้รับอนุญาตแล้ว ดึงตำแหน่ง
+    return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
   }
 
   Future<void> _registerUser() async {

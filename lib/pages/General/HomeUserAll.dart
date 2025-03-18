@@ -225,10 +225,6 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
                                         'คะแนน : ${tract.rate}',
                                         style: const TextStyle(fontSize: 11.0),
                                       ),
-                                      Text(
-                                        'ระยะทาง : 50 กิโลเมตร', // Example for distance
-                                        style: const TextStyle(fontSize: 11.0),
-                                      ),
                                       // const SizedBox(height: 10),
                                       // Align(
                                       //   alignment: Alignment.centerRight,

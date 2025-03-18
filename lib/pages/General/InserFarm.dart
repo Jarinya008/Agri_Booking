@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
 
 class InsertFarmPage extends StatefulWidget {
   final int mid;
@@ -25,6 +26,32 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
   double? lat;
   double? lng;
 
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  // ฟังก์ชันดึงตำแหน่งปัจจุบันของผู้ใช้
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        lat = position.latitude;
+        lng = position.longitude;
+        latController.text = lat.toString();
+        lngController.text = lng.toString();
+      });
+    } catch (e) {
+      print("🚨 Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("ไม่สามารถดึงตำแหน่งปัจจุบันได้")),
+      );
+    }
+  }
+
+  // ฟังก์ชันเปิดแผนที่
   Future<void> _openMapDialog() async {
     LatLng? selectedLocation = await showDialog<LatLng>(
       context: context,
@@ -36,14 +63,14 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
             height: 400,
             child: StatefulBuilder(
               builder: (context, setDialogState) {
-                LatLng initialLocation =
-                    LatLng(lat ?? 13.7563, lng ?? 100.5018);
+                LatLng initialLocation = LatLng(lat ?? 13.7563,
+                    lng ?? 100.5018); // ตำแหน่งปัจจุบันของผู้ใช้
                 return GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: initialLocation,
                     zoom: 12,
                   ),
-                  mapType: MapType.normal,
+                  mapType: MapType.satellite,
                   onTap: (LatLng location) {
                     setDialogState(() {
                       lat = location.latitude;
@@ -71,7 +98,13 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context, LatLng(lat!, lng!));
+                if (lat != null && lng != null) {
+                  Navigator.pop(context, LatLng(lat!, lng!));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("กรุณาเลือกตำแหน่งบนแผนที่")),
+                  );
+                }
               },
               child: const Text('ยืนยัน'),
             ),
@@ -90,6 +123,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     }
   }
 
+  // ฟังก์ชันส่งข้อมูลไปยัง API
   Future<void> _submitFarm() async {
     final url =
         "http://projectnodejs.thammadalok.com/AGribooking/client/insert/farm";
@@ -133,6 +167,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     }
   }
 
+  // ฟังก์ชันสร้าง UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,6 +195,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     );
   }
 
+  // ฟังก์ชันสร้างฟอร์ม text field
   Widget _buildTextField(String label, TextEditingController controller,
       {int maxLines = 1, bool readOnly = false}) {
     return Padding(
@@ -189,6 +225,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     );
   }
 
+  // ปุ่มเลือกตำแหน่ง GPS
   Widget _buildGPSButton() {
     return Center(
       child: SizedBox(
@@ -218,6 +255,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     );
   }
 
+  // ปุ่มยืนยันการเพิ่มฟาร์ม
   Widget _buildSubmitButton() {
     return Row(
       children: [
@@ -254,28 +292,3 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     );
   }
 }
-
-
-
-
-
-//  Widget _buildSubmitButton() {
-//     return Center(
-//       child: SizedBox(
-//         width: double.infinity,
-//         child: ElevatedButton(
-//           style: ElevatedButton.styleFrom(
-//             backgroundColor: Colors.green,
-//             foregroundColor: Colors.white,
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(8),
-//             ),
-//           ),
-//           onPressed: _submitFarm,
-//           child: const Text("เพิ่มไร่นา", style: TextStyle(fontSize: 16)),
-//         ),
-//       ),
-//     );
-//   }
-// }
-

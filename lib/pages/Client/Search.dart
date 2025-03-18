@@ -1,16 +1,12 @@
 import 'dart:convert';
-import 'package:app_agri_booking/pages/Client/ToobarC.dart';
+import 'package:app_agri_booking/pages/Client/Detail.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class SearchPage extends StatefulWidget {
   final int mid;
-
-  const SearchPage({
-    super.key,
-    required this.mid,
-    required Map<String, dynamic> userData,
-  });
+  final dynamic userData;
+  const SearchPage({super.key, required this.mid, required this.userData});
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -26,12 +22,13 @@ class _SearchPageState extends State<SearchPage> {
   bool isPriceAscending = true;
   List<dynamic> farmsList = [];
   bool isFarmLoading = true;
+  List<dynamic> tractorsList =
+      []; // เพิ่มตัวแปรนี้เพื่อเก็บข้อมูลที่ได้จากการค้นหา
 
   @override
   void initState() {
     super.initState();
     fetchFarms();
-    print(farmsList);
   }
 
   Future<void> fetchFarms() async {
@@ -57,32 +54,31 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> searchTractors() async {
-    // แปลงค่าของ isDistanceAscending และ isPriceAscending เป็น 'ASC' หรือ 'DESC'
     String distanceSort = isDistanceAscending ? 'ASC' : 'DESC';
     String priceSort = isPriceAscending ? 'ASC' : 'DESC';
-    print("fid: $distanceSort");
-    print("Distance sort: $distanceSort");
-    print("Price sort: $priceSort");
 
-    final url = Uri.parse("http://projectnodejs.thammadalok.com/member/search");
+    final baseUrl =
+        "http://projectnodejs.thammadalok.com/AGribooking/member/search";
+    final queryParams = {
+      'search': query,
+      if (selectedType.isNotEmpty) 'name_type_tract': selectedType,
+      if (selectedFarmID > 0) 'farm_id': selectedFarmID.toString(),
+      'member_id': widget.mid.toString(),
+      'sort_distance': distanceSort,
+      'sort_price': priceSort,
+    };
+
+    final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
 
     try {
-      final response = await http.get(url.replace(queryParameters: {
-        'search': query,
-        'price': '', // ถ้าไม่ได้ใช้ราคาให้ส่งเป็นค่าว่าง
-        'name_type_tract':
-            selectedType ?? '', // ถ้าไม่ได้เลือกประเภทแทรกเตอร์ให้ส่งค่าว่าง
-        'farm_id': selectedFarmID.toString(),
-        'member_id': widget.mid.toString(),
-        'sort_distance': distanceSort, // ส่งค่าจัดเรียงตามระยะทาง
-        'sort_price': priceSort, // ส่งค่าจัดเรียงตามราคา
-      }));
-
-      print(response);
+      final response = await http.get(uri);
       if (response.statusCode == 200) {
         final decodedData = json.decode(response.body);
         if (decodedData['success']) {
-          print("🔍 Search Success: ${decodedData['data']}");
+          setState(() {
+            tractorsList =
+                decodedData['data'] ?? []; // เก็บข้อมูลที่ได้รับจาก API
+          });
         } else {
           throw Exception("Search failed.");
         }
@@ -90,8 +86,46 @@ class _SearchPageState extends State<SearchPage> {
         throw Exception("Failed to fetch tractors.");
       }
     } catch (e) {
-      print("Error searching tractors: $e");
+      print("🚨 Error searching tractors: $e");
     }
+  }
+
+  Widget _buildTractorItem(dynamic tractor) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        leading: tractor['image'] != ''
+            ? Image.network(tractor['image'])
+            : Icon(Icons.image), // ถ้ามีรูปแสดงรูปภาพ ถ้าไม่มีแสดงไอคอน
+        title: Text(tractor['name_tract']),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("ประเภท: ${tractor['name_type_tract'].join(', ')}"),
+            Text("ราคา: ${tractor['price']}"),
+            Text("ระยะทาง: ${tractor['distance']} กิโลเมตร"),
+            Text("ติดต่อ: ${tractor['contact']}"),
+            Text("ที่อยู่: ${tractor['address']}"),
+          ],
+        ),
+        trailing: ElevatedButton(
+          onPressed: () {
+            // เมื่อกดปุ่ม "รายละเอียดเพิ่มเติม" ส่งข้อมูลไปยังหน้ารายละเอียด
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailsPage(
+                  tid: tractor['tid'],
+                  mid: widget.mid, // ส่งข้อมูล member_id ไปด้วย
+                  fid: selectedFarmID, // ส่ง farm_id ไปด้วย
+                ),
+              ),
+            );
+          },
+          child: const Text("รายละเอียดเพิ่มเติม"),
+        ),
+      ),
+    );
   }
 
   Widget _buildTypeOption(String type) {
@@ -121,6 +155,7 @@ class _SearchPageState extends State<SearchPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // พื้นที่สำหรับค้นหา (TextField, Filter Button, etc.)
               Row(
                 children: [
                   Expanded(
@@ -130,7 +165,7 @@ class _SearchPageState extends State<SearchPage> {
                           query = value;
                         });
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'พิมพ์คำที่ต้องการค้นหา...',
                       ),
                     ),
@@ -156,8 +191,7 @@ class _SearchPageState extends State<SearchPage> {
                                           setState(() {
                                             selectedTypeFarm =
                                                 farm['name_farm'];
-                                            selectedFarmID =
-                                                farm['fid']; // เก็บค่า farm_id
+                                            selectedFarmID = farm['fid'];
                                           });
                                           Navigator.pop(context);
                                         },
@@ -168,27 +202,14 @@ class _SearchPageState extends State<SearchPage> {
                         },
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 232, 134, 6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                    ),
                     child: Text(
                       selectedTypeFarm.length > 5
                           ? '${selectedTypeFarm.substring(0, 5)}...'
                           : selectedTypeFarm,
-                      style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white),
                     ),
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
 
               // แถบเมนูการค้นหา
@@ -210,12 +231,15 @@ class _SearchPageState extends State<SearchPage> {
                                 _buildTypeOption('รถเกี่ยวข้าว'),
                                 _buildTypeOption('รถดำนา'),
                                 _buildTypeOption('รถตัด'),
+                                _buildTypeOption(''),
                               ],
                             );
                           },
                         );
                       },
-                      child: Text(selectedType),
+                      child: Text(selectedType.isNotEmpty
+                          ? selectedType
+                          : "เลือกประเภท"),
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
@@ -224,7 +248,7 @@ class _SearchPageState extends State<SearchPage> {
                           isDistanceAscending = !isDistanceAscending;
                         });
                       },
-                      child: Text('ระยะทาง ${isDistanceAscending ? '↑' : '↓'}'),
+                      child: Text('ระยะทาง ${isDistanceAscending ? '↓' : '↑'}'),
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
@@ -244,23 +268,22 @@ class _SearchPageState extends State<SearchPage> {
               Center(
                 child: ElevatedButton(
                   onPressed: searchTractors,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 14),
-                  ),
-                  child: const Text(
-                    'ค้นหา',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
+                  child: const Text('ค้นหา'),
                 ),
               ),
+
+              const SizedBox(height: 20),
+
+              // แสดงรายการของ Tractor ที่ได้จาก API
+              if (tractorsList.isNotEmpty)
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: tractorsList.length,
+                  itemBuilder: (context, index) {
+                    return _buildTractorItem(tractorsList[index]);
+                  },
+                ),
             ],
           ),
         ),

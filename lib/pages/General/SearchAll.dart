@@ -330,10 +330,6 @@ class _SearchPageState extends State<SearchAllPage> {
                                   'คะแนน : ${result['rating']}',
                                   style: const TextStyle(fontSize: 11.0),
                                 ),
-                                Text(
-                                  'ระยะทาง : ${result['distance']}',
-                                  style: const TextStyle(fontSize: 11.0),
-                                ),
                               ],
                             ),
                           ),
