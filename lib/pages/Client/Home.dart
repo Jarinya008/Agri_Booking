@@ -237,16 +237,23 @@ class HomeClientPage extends StatelessWidget {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // รูปภาพด้านซ้าย
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  child: Image.asset(
-                                    'assets/images/Logo.png', // เปลี่ยนเป็น path รูปภาพของคุณ
+                                  child: Container(
                                     width: 80.0,
                                     height: 80.0,
-                                    fit: BoxFit.cover,
+                                    child: Image.network(
+                                      (tract.image != null &&
+                                              tract.image.isNotEmpty)
+                                          ? tract.image // ถ้ามี URL รูปภาพ
+                                          : 'https://www.forest.go.th/training/wp-content/uploads/sites/17/2015/03/noimages.png', // ใช้ URL นี้ถ้าไม่มี URL ภาพ
+                                      fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                    ),
                                   ),
                                 ),
+
                                 const SizedBox(width: 16.0), // ระยะห่าง
                                 // ข้อมูลทางขวา
                                 Expanded(

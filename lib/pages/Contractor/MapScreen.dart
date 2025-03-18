@@ -410,8 +410,11 @@ class MapScreen extends StatefulWidget {
   final double farmLat;
   final double farmLng;
 
-  const MapScreen({Key? key, required this.farmLat, required this.farmLng})
-      : super(key: key);
+  const MapScreen({
+    Key? key,
+    required this.farmLat,
+    required this.farmLng,
+  }) : super(key: key);
 
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -421,14 +424,50 @@ class _MapScreenState extends State<MapScreen> {
   GoogleMapController? _mapController;
   Position? _currentPosition;
   Set<Marker> _markers = {};
+  Map<String, dynamic> queueData = {}; // เก็บข้อมูลจาก API
   Set<Polyline> _polylines = {};
   List<LatLng> _routeCoords = [];
+  bool isLoading = true; // เช็คสถานะโหลดข้อมูล
+  String? errorMessage; // ข้อความ error
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    //fetchQueueDetails();
   }
+
+//เส้นจองคิว
+  // Future<void> fetchQueueDetails() async {
+  //   final url = Uri.parse(
+  //       "http://projectnodejs.thammadalok.com/AGribooking/contractor/myqueue/${widget.mid}");
+
+  //   print("กำลังดึงข้อมูลจาก: $url"); // ✅ เช็ก URL
+  //   print("MID ที่ส่งไป: ${widget.mid}"); // ✅ เช็กค่าที่ส่งไป
+
+  //   try {
+  //     final response = await http.get(url);
+
+  //     print("Response Code: ${response.statusCode}"); // ✅ ดูว่าตอบ 200 ไหม
+  //     print(
+  //         "Response Body: ${response.body}"); // ✅ ดูว่า API ส่งข้อมูลอะไรกลับมา
+
+  //     if (response.statusCode == 200) {
+  //       setState(() {
+  //         queueData = json.decode(response.body);
+  //         print("queueData: $queueData"); // ✅ เช็กโครงสร้าง JSON
+  //       });
+  //     } else {
+  //       setState(() {
+  //         errorMessage = "ไม่พบข้อมูล หรือเกิดข้อผิดพลาด";
+  //       });
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       errorMessage = "เกิดข้อผิดพลาด: $e";
+  //     });
+  //   }
+  // }
 
   Future<void> _getCurrentLocation() async {
     Position position = await Geolocator.getCurrentPosition(
