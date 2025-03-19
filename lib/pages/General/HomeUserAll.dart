@@ -220,11 +220,7 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
                                             ),
                                           ),
                                         ],
-                                      ),
-                                      Text(
-                                        'คะแนน : ${tract.rate}',
-                                        style: const TextStyle(fontSize: 11.0),
-                                      ),
+                                      )
                                       // const SizedBox(height: 10),
                                       // Align(
                                       //   alignment: Alignment.centerRight,

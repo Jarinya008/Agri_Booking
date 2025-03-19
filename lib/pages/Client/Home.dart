@@ -292,10 +292,6 @@ class HomeClientPage extends StatelessWidget {
                                         ],
                                       ),
                                       Text(
-                                        'คะแนน : ${tract.rate}',
-                                        style: const TextStyle(fontSize: 11.0),
-                                      ),
-                                      Text(
                                         'ระยะทาง : 50 กิโลเมตร', // Example for distance
                                         style: const TextStyle(fontSize: 11.0),
                                       ),
