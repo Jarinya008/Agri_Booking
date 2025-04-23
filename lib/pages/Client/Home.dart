@@ -1,12 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'dart:convert';
+import 'package:app_agri_booking/config.dart';
+import 'package:app_agri_booking/model/GetAllTracts.dart';
 import 'package:app_agri_booking/pages/Client/Detail.dart';
 import 'package:app_agri_booking/pages/Client/Search.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class HomeClientPage extends StatefulWidget {
   final dynamic userData;
 
-  const HomeClientPage({Key? key, required this.userData}) : super(key: key);
+  const HomeClientPage({super.key, required this.userData});
 
   @override
   _HomeClientPageState createState() => _HomeClientPageState();
@@ -15,44 +19,39 @@ class HomeClientPage extends StatefulWidget {
 class _HomeClientPageState extends State<HomeClientPage> {
   int? selectedFarmId;
 
-  final List<Map<String, dynamic>> mockFarms = [
-    {'fid': 1, 'name_farm': 'ไร่ทดสอบ A'},
-    {'fid': 2, 'name_farm': 'สวนมะม่วง B'},
-  ];
+  Future<List<GetAllTracts>> fetchData() async {
+    final response = await http.get(Uri.parse(ApiConfig.getAllTractsList));
+    if (response.statusCode == 200) {
+      return getAllTractsFromJson(response.body);
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
 
-  final List<Map<String, String>> mockTracts = [
-    {
-      'tid': '101',
-      'name': 'รถไถคูโบต้า',
-      'type': 'ไถพรวน',
-      'address': 'อุบลราชธานี',
-      'price': '1500',
-      'image': 'https://www.vervaet.nl/dbupload/_p34_hydro.jpg'
-    },
-    {
-      'tid': '102',
-      'name': 'รถเกี่ยวนวดข้าว',
-      'type': 'เก็บเกี่ยว',
-      'address': 'ขอนแก่น',
-      'price': '2500',
-      'image':
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNHzaUcniTqXfWLOpa5HfWV_eTQAdBjHPNKg&s'
-    },
-  ];
-
-  final List<String> imageUrls = [
-    'https://www.vervaet.nl/dbupload/_p34_hydro.jpg',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNHzaUcniTqXfWLOpa5HfWV_eTQAdBjHPNKg&s',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    selectedFarmId = mockFarms.first['fid']; // ตั้งค่าไร่เริ่มต้น
+  Future<List<Map<String, dynamic>>> fetchFarms() async {
+    final response = await http.get(
+      Uri.parse(
+        "http://projectnodejs.thammadalok.com/AGribooking/client/farms/${widget.userData['mid']}",
+      ),
+    );
+    if (response.statusCode == 200) {
+      final decodedData = json.decode(response.body);
+      return (decodedData['farms'] as List)
+          .map(
+              (farms) => {'fid': farms['fid'], 'name_farm': farms['name_farm']})
+          .toList();
+    } else {
+      throw Exception("Failed to load farms");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<String> imageUrls = [
+      'https://www.vervaet.nl/dbupload/_p34_hydro.jpg',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNHzaUcniTqXfWLOpa5HfWV_eTQAdBjHPNKg&s',
+    ];
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 244, 214, 169),
       body: SingleChildScrollView(
@@ -68,185 +67,170 @@ class _HomeClientPageState extends State<HomeClientPage> {
                 fit: BoxFit.contain,
               ),
             ),
-
-            // 🔍 ช่องค้นหา
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: TextField(
+                style: const TextStyle(fontSize: 14.0, color: Colors.black),
                 decoration: InputDecoration(
                   hintText: 'ค้นหา :ชื่อรถ,ประเภทรถ,ราคา,จังหวัด,อำเภอ',
+                  hintStyle:
+                      const TextStyle(fontSize: 14.0, color: Colors.grey),
                   prefixIcon: GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => SearchPage(
-                              mid: widget.userData['mid'],
-                              userData: widget.userData),
+                            mid: widget.userData['mid'],
+                            userData: {},
+                          ),
                         ),
                       );
                     },
                     child: const Icon(Icons.search),
                   ),
-                  filled: true,
                   fillColor: Colors.grey[200],
+                  filled: true,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: BorderSide.none,
                   ),
                 ),
-                onSubmitted: (_) {
+                onSubmitted: (value) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => SearchPage(
-                          mid: widget.userData['mid'],
-                          userData: widget.userData),
+                        mid: widget.userData['mid'],
+                        userData: widget.userData,
+                      ),
                     ),
                   );
                 },
               ),
             ),
-
-            // 📸 รูปสไลด์
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: CarouselSlider(
                 options: CarouselOptions(
-                  height: 100,
+                  height: 100.0,
                   autoPlay: true,
                   enlargeCenterPage: true,
+                  aspectRatio: 16 / 9,
+                  viewportFraction: 0.8,
                 ),
                 items: imageUrls.map((url) {
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: const EdgeInsets.symmetric(horizontal: 5.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      image: DecorationImage(
-                          image: NetworkImage(url), fit: BoxFit.cover),
-                    ),
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width,
+                        margin: const EdgeInsets.symmetric(horizontal: 5.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.0),
+                          image: DecorationImage(
+                            image: NetworkImage(url),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 }).toList(),
               ),
             ),
-
-            // 🌾 เลือกไร่นา
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: DropdownButtonFormField<int>(
-                value: selectedFarmId,
-                decoration: const InputDecoration(
-                  labelText: 'เลือกไร่นาของคุณ',
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                items: mockFarms.map((farm) {
-                  return DropdownMenuItem<int>(
-                    value: farm['fid'],
-                    child: Text(farm['name_farm']),
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: fetchFarms(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text("Error: ${snapshot.error}");
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text("ไม่มีข้อมูลไร่นา");
+                  }
+
+                  List<Map<String, dynamic>> farms = snapshot.data!;
+                  selectedFarmId ??= farms.first['fid'];
+
+                  return DropdownButtonFormField<int>(
+                    value: selectedFarmId,
+                    items: farms.map((farm) {
+                      return DropdownMenuItem<int>(
+                        value: farm['fid'],
+                        child: Text(farm['name_farm'] ?? "ไม่ทราบชื่อ"),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedFarmId = newValue;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'เลือกไร่นาของคุณ',
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
                   );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedFarmId = newValue;
-                  });
                 },
               ),
             ),
-
+            const SizedBox(height: 10),
             const Padding(
-              padding: EdgeInsets.only(left: 25.0, top: 16),
+              padding: EdgeInsets.only(left: 25.0, top: 8.0),
               child: Text(
                 'รถที่ให้บริการ',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87,
+                  height: 1.5,
+                ),
               ),
             ),
-
-            // 🚜 รายการรถ
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: mockTracts.length,
-              itemBuilder: (context, index) {
-                final tract = mockTracts[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 15.0, vertical: 8.0),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              tract['image']!,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
+            FutureBuilder<List<GetAllTracts>>(
+              future: fetchData(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (snapshot.hasData) {
+                  List<GetAllTracts> tracts = snapshot.data!;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: tracts.length,
+                    itemBuilder: (context, index) {
+                      final tract = tracts[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15.0, vertical: 8.0),
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0)),
+                          elevation: 5.0,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  tract['name']!,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15),
-                                ),
-                                Text("ประเภทรถ : ${tract['type']}"),
-                                Text("ที่อยู่ : ${tract['address']}"),
-                                Text("ราคา : ${tract['price']} บาท",
-                                    style: const TextStyle(
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold)),
-                                const SizedBox(height: 10),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: SizedBox(
-                                    width: 150,
-                                    height: 35,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => DetailsPage(
-                                              tid: 1,
-                                              mid: 1,
-                                              fid: 1,
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            const Color(0xFF2ED233),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'รายละเอียดเพิ่มเติม',
-                                        style: TextStyle(
-                                            fontSize: 11, color: Colors.white),
-                                      ),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  child: Container(
+                                    width: 80.0,
+                                    height: 80.0,
+                                    child: Image.network(
+                                      (tract.image != null &&
+                                              tract.image.isNotEmpty)
+                                          ? tract.image
+                                          : 'https://www.forest.go.th/training/wp-content/uploads/sites/17/2015/03/noimages.png',
+                                      fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
-
-                                const SizedBox(width: 16.0), // ระยะห่าง
-                                // ข้อมูลทางขวา
+                                const SizedBox(width: 16.0),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -255,8 +239,9 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                       Text(
                                         tract.nameTract,
                                         style: const TextStyle(
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.bold),
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                       Text(
                                         'ประเภทรถ : ${tract.typeNameTract}',
@@ -268,10 +253,8 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                       ),
                                       Row(
                                         children: [
-                                          const Text(
-                                            'ราคา : ',
-                                            style: TextStyle(fontSize: 11.0),
-                                          ),
+                                          const Text('ราคา : ',
+                                              style: TextStyle(fontSize: 11.0)),
                                           Text(
                                             tract.price,
                                             style: const TextStyle(
@@ -282,35 +265,27 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                           ),
                                         ],
                                       ),
-                                      Text(
-                                        'ระยะทาง : 50 กิโลเมตร', // Example for distance
-                                        style: const TextStyle(fontSize: 11.0),
-                                      ),
+                                      const Text('ระยะทาง : 50 กิโลเมตร',
+                                          style: TextStyle(fontSize: 11.0)),
                                       const SizedBox(height: 10),
                                       Align(
                                         alignment: Alignment.centerRight,
                                         child: SizedBox(
-                                          width:
-                                              150.0, // กำหนดความกว้างที่ต้องการ
-                                          height:
-                                              35.0, // กำหนดความสูงที่ต้องการ
+                                          width: 150.0,
+                                          height: 35.0,
                                           child: ElevatedButton(
                                             onPressed: () {
-                                              print(
-                                                  "ส่งค่า fid: ${selectedFarmId.value} ไปยังหน้า DetailsPage"); // ✅ Debug
                                               int fidToSend =
-                                                  selectedFarmId.value ?? 0;
-                                              // ฟังก์ชันที่ทำงานเมื่อกดปุ่ม
+                                                  selectedFarmId ?? 0;
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (context) =>
                                                       DetailsPage(
                                                     tid: tract.tid,
-                                                    mid: userData['mid'],
-                                                    fid:
-                                                        fidToSend, // อัปเดตค่า fid ที่เลือก,
-                                                  ), // เปลี่ยนเป็นหน้าที่ต้องการ
+                                                    mid: widget.userData['mid'],
+                                                    fid: fidToSend,
+                                                  ),
                                                 ),
                                               );
                                             },
@@ -320,32 +295,31 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                                       255, 46, 210, 51),
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(
-                                                        8.0), // มุมโค้ง
+                                                    BorderRadius.circular(8.0),
                                               ),
                                             ),
                                             child: const Text(
                                               'รายละเอียดเพิ่มเติม',
                                               style: TextStyle(
-                                                fontSize: 11.0,
-                                                color: Colors
-                                                    .white, // ใช้สีขาวสำหรับตัวอักษร
-                                              ),
+                                                  fontSize: 11.0,
+                                                  color: Colors.white),
                                             ),
                                           ),
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  return const Center(child: Text('No data available'));
+                }
               },
             ),
           ],

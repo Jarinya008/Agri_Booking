@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class HomeContractorPage extends StatefulWidget {
-  HomeContractorPage({super.key});
+  const HomeContractorPage({super.key});
 
   @override
   _HomeContractorPageState createState() => _HomeContractorPageState();
