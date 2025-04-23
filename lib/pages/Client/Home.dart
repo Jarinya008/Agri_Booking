@@ -243,7 +243,101 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                       ),
                                     ),
                                   ),
-                                )
+                                ),
+
+                                const SizedBox(width: 16.0), // ระยะห่าง
+                                // ข้อมูลทางขวา
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        tract.nameTract,
+                                        style: const TextStyle(
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                      Text(
+                                        'ประเภทรถ : ${tract.typeNameTract}',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      Text(
+                                        'ที่อยู่ : ${tract.address}',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'ราคา : ',
+                                            style: TextStyle(fontSize: 11.0),
+                                          ),
+                                          Text(
+                                            tract.price,
+                                            style: const TextStyle(
+                                              fontSize: 11.0,
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(
+                                        'ระยะทาง : 50 กิโลเมตร', // Example for distance
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: SizedBox(
+                                          width:
+                                              150.0, // กำหนดความกว้างที่ต้องการ
+                                          height:
+                                              35.0, // กำหนดความสูงที่ต้องการ
+                                          child: ElevatedButton(
+                                            onPressed: () {
+                                              print(
+                                                  "ส่งค่า fid: ${selectedFarmId.value} ไปยังหน้า DetailsPage"); // ✅ Debug
+                                              int fidToSend =
+                                                  selectedFarmId.value ?? 0;
+                                              // ฟังก์ชันที่ทำงานเมื่อกดปุ่ม
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      DetailsPage(
+                                                    tid: tract.tid,
+                                                    mid: userData['mid'],
+                                                    fid:
+                                                        fidToSend, // อัปเดตค่า fid ที่เลือก,
+                                                  ), // เปลี่ยนเป็นหน้าที่ต้องการ
+                                                ),
+                                              );
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color.fromARGB(
+                                                      255, 46, 210, 51),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        8.0), // มุมโค้ง
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              'รายละเอียดเพิ่มเติม',
+                                              style: TextStyle(
+                                                fontSize: 11.0,
+                                                color: Colors
+                                                    .white, // ใช้สีขาวสำหรับตัวอักษร
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),

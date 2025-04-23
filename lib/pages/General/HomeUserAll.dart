@@ -183,8 +183,65 @@ class _HomeUserAllPageState extends State<HomeUserAllPage> {
                                         color: Colors.green,
                                         fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                                  ],
+                                      Text(
+                                        'ประเภทรถ : ${tract.typeNameTract}',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      Text(
+                                        'ที่อยู่ : ${tract.address}',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'ราคา : ',
+                                            style: TextStyle(fontSize: 11.0),
+                                          ),
+                                          Text(
+                                            tract.price,
+                                            style: const TextStyle(
+                                              fontSize: 11.0,
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                      // const SizedBox(height: 10),
+                                      // Align(
+                                      //   alignment: Alignment.centerRight,
+                                      //   child: SizedBox(
+                                      //     width:
+                                      //         150.0, // กำหนดความกว้างที่ต้องการ
+                                      //     height:
+                                      //         35.0, // กำหนดความสูงที่ต้องการ
+                                      //     child: ElevatedButton(
+                                      //       onPressed: () {
+                                      //         // ฟังก์ชันที่ทำงานเมื่อกดปุ่ม
+                                      //       },
+                                      //       style: ElevatedButton.styleFrom(
+                                      //         backgroundColor:
+                                      //             const Color.fromARGB(
+                                      //                 255, 46, 210, 51),
+                                      //         shape: RoundedRectangleBorder(
+                                      //           borderRadius:
+                                      //               BorderRadius.circular(
+                                      //                   8.0), // มุมโค้ง
+                                      //         ),
+                                      //       ),
+                                      //       child: const Text(
+                                      //         'รายละเอียดเพิ่มเติม',
+                                      //         style: TextStyle(
+                                      //           fontSize: 11.0,
+                                      //           color: Colors
+                                      //               .white, // ใช้สีขาวสำหรับตัวอักษร
+                                      //         ),
+                                      //       ),
+                                      //     ),
+                                      //   ),
+                                      // )
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
