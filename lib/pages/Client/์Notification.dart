@@ -1,7 +1,11 @@
-import 'package:app_agri_booking/pages/Client/ToobarC.dart';
 import 'package:flutter/material.dart';
 
-class NotificationPage extends StatelessWidget {
+class NotificationPage extends StatefulWidget {
+  @override
+  _NotificationPageState createState() => _NotificationPageState();
+}
+
+class _NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -9,13 +13,13 @@ class NotificationPage extends StatelessWidget {
         title: const Text('การแจ้งเตือน'),
         backgroundColor: const Color(0xFFFFC074),
         centerTitle: true,
-        automaticallyImplyLeading: false, // ปิดปุ่ม "กดกลับ"
+        automaticallyImplyLeading: false, // Disable back button
       ),
-      body: _buildHistoryContent(), // เรียกใช้ _buildHistoryContent ที่นี่
+      body: _buildHistoryContent(), // Display mock data in the body
     );
   }
 
-  // เนื้อหารายการการแจ้งเตือน
+  // Content of the notifications page
   Widget _buildHistoryContent() {
     return Container(
       color: const Color.fromARGB(255, 244, 214, 169),
@@ -23,7 +27,6 @@ class NotificationPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          //ข้อมูลที่ส่งไปใส่การ์ด
           children: [
             const SizedBox(height: 16.0),
             _buildQueueItem('ตัดอ้อยยยยยย', 'รถตัดอ้อยขนาดใหญ่ รุ่น CH570',
@@ -38,7 +41,7 @@ class NotificationPage extends StatelessWidget {
     );
   }
 
-  // การ์ดแสดงข้อมูลที่ดึงข้อมูลมาใส่แล้วส่งกลับไป
+  // Notification item UI (Mock data)
   Widget _buildQueueItem(
       String title, String subtitle, String phone, String status) {
     return Card(
@@ -56,7 +59,7 @@ class NotificationPage extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10.0),
                 child: Image.network(
-                  'https://play-lh.googleusercontent.com/IawSyao8NWsYCE_o7GoN6PvngS_ev5wLhXb3XmqB0ijbq2GBZYK5Bu8sLppG2Yqhc3dE', // URL ของรูปภาพ
+                  'https://play-lh.googleusercontent.com/IawSyao8NWsYCE_o7GoN6PvngS_ev5wLhXb3XmqB0ijbq2GBZYK5Bu8sLppG2Yqhc3dE', // Sample image URL
                   width: 70.0,
                   height: 70.0,
                   fit: BoxFit.cover,
@@ -78,7 +81,7 @@ class NotificationPage extends StatelessWidget {
                     style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(
-                    'เบอรโทร $phone',
+                    'เบอร์โทร: $phone',
                     style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(
@@ -97,7 +100,13 @@ class NotificationPage extends StatelessWidget {
               height: 100.0,
               child: ElevatedButton(
                 onPressed: () {
-                  // กำหนดการทำงานเมื่อกดปุ่ม
+                  // Navigate to more details (dummy action here)
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailsPage(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 46, 210, 51),
@@ -117,6 +126,22 @@ class NotificationPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Sample DetailsPage for navigation
+class DetailsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('รายละเอียดเพิ่มเติม'),
+        backgroundColor: const Color(0xFFFFC074),
+      ),
+      body: Center(
+        child: Text('รายละเอียดเพิ่มเติมที่นี่'), // Placeholder content
       ),
     );
   }

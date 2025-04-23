@@ -1,13 +1,8 @@
-import 'dart:convert';
-
-import 'package:app_agri_booking/pages/Client/Search.dart';
-import 'package:app_agri_booking/pages/Client/ToobarC.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 class QueuePage extends StatefulWidget {
-  final int mid;
-  const QueuePage({super.key, required this.mid});
+  const QueuePage({super.key});
+
   @override
   _QueuePageState createState() => _QueuePageState();
 }
@@ -15,39 +10,21 @@ class QueuePage extends StatefulWidget {
 class _QueuePageState extends State<QueuePage> {
   int selectedTabIndex = 0;
 
-  List<Map<String, dynamic>> queueData = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    fetchQueueData();
-  }
-
-  // 📌 ฟังก์ชันดึงข้อมูลจาก API
-  Future<void> fetchQueueData() async {
-    final String apiUrl =
-        "http://projectnodejs.thammadalok.com/AGribooking/client/myqueue/${widget.mid}";
-
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-
-      if (response.statusCode == 200) {
-        print(response.body);
-        List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          queueData = List<Map<String, dynamic>>.from(data);
-          isLoading = false;
-        });
-      } else {
-        setState(() => isLoading = false);
-        print("⚠️ Error: ${response.body}");
-      }
-    } catch (e) {
-      setState(() => isLoading = false);
-      print("❌ Fetch error: $e");
-    }
-  }
+  // ✅ จำลองข้อมูล
+  List<Map<String, dynamic>> queueData = [
+    {
+      'name_qt': 'ตัดอ้อย',
+      'name_tract': 'รถตัดอ้อยขนาดใหญ่ รุ่น CH570',
+      'phone': '089-123-4567',
+      'acc_status': 'กำลังดำเนินการ',
+    },
+    {
+      'name_qt': 'ไถพรวนดิน',
+      'name_tract': 'รถไถ John Deere',
+      'phone': '087-987-6543',
+      'acc_status': 'รอการยืนยัน',
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +33,7 @@ class _QueuePageState extends State<QueuePage> {
         title: const Text('รายการจองคิวรถ'),
         backgroundColor: const Color(0xFFFFC074),
         centerTitle: true,
-        automaticallyImplyLeading: false, // ปิดปุ่ม "กดกลับ"
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -101,7 +78,7 @@ class _QueuePageState extends State<QueuePage> {
         child: Text(
           title,
           style: TextStyle(
-            color: selectedTabIndex == index ? Colors.black : Colors.black,
+            color: Colors.black,
             fontSize: 15,
             fontWeight:
                 selectedTabIndex == index ? FontWeight.bold : FontWeight.normal,
@@ -111,7 +88,6 @@ class _QueuePageState extends State<QueuePage> {
     );
   }
 
-//เนื้อหาในหน้ารายการจองคิว
   Widget _buildCurrentQueueContent() {
     return Container(
       color: const Color.fromARGB(255, 244, 214, 169),
@@ -125,8 +101,6 @@ class _QueuePageState extends State<QueuePage> {
               style: TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 16.0),
-
-            // ✅ ใช้ ListView.builder เพื่อแสดงรายการ
             Expanded(
               child: queueData.isEmpty
                   ? const Center(child: Text("ไม่มีข้อมูลคิว"))
@@ -135,10 +109,10 @@ class _QueuePageState extends State<QueuePage> {
                       itemBuilder: (context, index) {
                         final queue = queueData[index];
                         return _buildQueueItem(
-                          queue['name_qt'] ?? "ไม่ระบุ",
-                          queue['name_tract'] ?? "ไม่ระบุ",
-                          queue['phone'] ?? "ไม่ระบุ",
-                          queue['acc_status'] ?? "ไม่ระบุ",
+                          queue['name_qt'],
+                          queue['name_tract'],
+                          queue['phone'],
+                          queue['acc_status'],
                         );
                       },
                     ),
@@ -149,7 +123,6 @@ class _QueuePageState extends State<QueuePage> {
     );
   }
 
-//เนื้อหาในหน้าประวัติการจองคิว
   Widget _buildHistoryContent() {
     return Container(
       color: const Color.fromARGB(255, 244, 214, 169),
@@ -163,16 +136,14 @@ class _QueuePageState extends State<QueuePage> {
               style: TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 16.0),
-            _buildQueueItem('ตัดอ้อยยยยยย', 'รถตัดอ้อยขนาดใหญ่ รุ่น CH570',
-                '085-222-0000', 'สถานะทำงานเสร็จเรียบร้อย'),
-            // Add more items as needed
+            _buildQueueItem('เกี่ยวข้าว', 'รถเกี่ยวข้าว Kubota', '082-555-9999',
+                'สถานะทำงานเสร็จเรียบร้อย'),
           ],
         ),
       ),
     );
   }
 
-  //เป็น code ส่วนที่รับเนื้อหามาใส่ในการ์ดแล้วส่งการ์ดไปแสดงตามหน้าที่ต้องการ
   Widget _buildQueueItem(
       String title, String subtitle, String phone, String status) {
     return Card(
@@ -190,7 +161,7 @@ class _QueuePageState extends State<QueuePage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10.0),
                 child: Image.network(
-                  'https://play-lh.googleusercontent.com/IawSyao8NWsYCE_o7GoN6PvngS_ev5wLhXb3XmqB0ijbq2GBZYK5Bu8sLppG2Yqhc3dE', // URL ของรูปภาพ
+                  'https://play-lh.googleusercontent.com/IawSyao8NWsYCE_o7GoN6PvngS_ev5wLhXb3XmqB0ijbq2GBZYK5Bu8sLppG2Yqhc3dE',
                   width: 70.0,
                   height: 70.0,
                   fit: BoxFit.cover,
@@ -212,7 +183,7 @@ class _QueuePageState extends State<QueuePage> {
                     style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(
-                    'เบอรโทร $phone',
+                    'เบอร์โทร $phone',
                     style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(

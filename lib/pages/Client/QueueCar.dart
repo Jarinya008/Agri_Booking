@@ -125,7 +125,7 @@ class _QueueCarScreenState extends State<QueueCarScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => QueuePage(mid: widget.mid),
+            builder: (context) => QueuePage(),
           ),
         );
       } else {
