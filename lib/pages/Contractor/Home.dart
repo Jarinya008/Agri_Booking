@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class HomeContractorPage extends StatefulWidget {
-  const HomeContractorPage({super.key});
+  final dynamic userData;
+
+  const HomeContractorPage({super.key, required this.userData});
 
   @override
   _HomeContractorPageState createState() => _HomeContractorPageState();
@@ -16,17 +18,17 @@ class _HomeContractorPageState extends State<HomeContractorPage> {
     return DateTime(date.year, date.month, date.day);
   }
 
-  // ข้อมูลจำลอง
-  final Map<DateTime, List<Map<String, String>>> _events = {
-    DateTime(2025, 4, 24): [
-      {"title": "งานติดตั้ง", "details": "ติดตั้งระบบไฟฟ้า"},
-      {"title": "งานตรวจสอบ", "details": "ตรวจสอบคุณภาพงาน"}
+  Map<DateTime, List<Map<String, String>>> _events = {
+    DateTime(2025, 3, 4): [
+      {"title": "งานเช้า", "details": "รายละเอียดงานเช้า"},
+      {"title": "งานบ่าย", "details": "รายละเอียดงานบ่าย"}
     ],
-    DateTime(2025, 4, 25): [
-      {"title": "ประชุมโครงการ", "details": "ประชุมที่สำนักงานใหญ่"}
+    DateTime(2025, 3, 5): [
+      {"title": "งานกลางวัน", "details": "รายละเอียดงานกลางวัน"}
     ],
-    DateTime(2025, 4, 30): [
-      {"title": "งานซ่อมแซม", "details": "ซ่อมหลังคารั่ว"}
+    DateTime(2025, 3, 10): [
+      {"title": "งานเช้า", "details": "รายละเอียดงานเช้า"},
+      {"title": "งานเย็น", "details": "รายละเอียดงานเย็น"}
     ],
   };
 
@@ -41,6 +43,19 @@ class _HomeContractorPageState extends State<HomeContractorPage> {
             onPressed: () => Navigator.pop(context),
             child: const Text("ปิด"),
           ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      EventDetailPage(title: title, details: details),
+                ),
+              );
+            },
+            child: const Text("ไปที่หน้ารายละเอียด"),
+          ),
         ],
       ),
     );
@@ -50,7 +65,7 @@ class _HomeContractorPageState extends State<HomeContractorPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("ตารางงานผู้รับเหมา"),
+        title: const Text("ตารางงาน"),
         backgroundColor: Colors.amber,
       ),
       body: Padding(
@@ -71,7 +86,8 @@ class _HomeContractorPageState extends State<HomeContractorPage> {
                 });
               },
               eventLoader: (day) {
-                return _events[_normalizeDate(day)] ?? [];
+                DateTime normalizedDay = _normalizeDate(day);
+                return _events[normalizedDay] ?? [];
               },
               calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(
@@ -117,6 +133,25 @@ class _HomeContractorPageState extends State<HomeContractorPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class EventDetailPage extends StatelessWidget {
+  final String title;
+  final String details;
+
+  const EventDetailPage(
+      {super.key, required this.title, required this.details});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(details, style: const TextStyle(fontSize: 18)),
       ),
     );
   }

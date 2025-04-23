@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 class NotificationPage extends StatefulWidget {
+  const NotificationPage({super.key});
+
   @override
-  _NotificationPageState createState() => _NotificationPageState();
+  State<NotificationPage> createState() => _NotificationPageState();
 }
 
 class _NotificationPageState extends State<NotificationPage> {
@@ -13,13 +15,12 @@ class _NotificationPageState extends State<NotificationPage> {
         title: const Text('การแจ้งเตือน'),
         backgroundColor: const Color(0xFFFFC074),
         centerTitle: true,
-        automaticallyImplyLeading: false, // Disable back button
+        automaticallyImplyLeading: false, // ปิดปุ่ม "กดกลับ"
       ),
-      body: _buildHistoryContent(), // Display mock data in the body
+      body: _buildHistoryContent(),
     );
   }
 
-  // Content of the notifications page
   Widget _buildHistoryContent() {
     return Container(
       color: const Color.fromARGB(255, 244, 214, 169),
@@ -34,14 +35,12 @@ class _NotificationPageState extends State<NotificationPage> {
             const SizedBox(height: 16.0),
             _buildQueueItem('ขุดดิน', 'รถแมคโคขนาดเลฺก ', '0252542221',
                 'สถานะกำลังดำเนินงาน'),
-            // Add more items as needed
           ],
         ),
       ),
     );
   }
 
-  // Notification item UI (Mock data)
   Widget _buildQueueItem(
       String title, String subtitle, String phone, String status) {
     return Card(
@@ -59,7 +58,7 @@ class _NotificationPageState extends State<NotificationPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10.0),
                 child: Image.network(
-                  'https://play-lh.googleusercontent.com/IawSyao8NWsYCE_o7GoN6PvngS_ev5wLhXb3XmqB0ijbq2GBZYK5Bu8sLppG2Yqhc3dE', // Sample image URL
+                  'https://play-lh.googleusercontent.com/IawSyao8NWsYCE_o7GoN6PvngS_ev5wLhXb3XmqB0ijbq2GBZYK5Bu8sLppG2Yqhc3dE',
                   width: 70.0,
                   height: 70.0,
                   fit: BoxFit.cover,
@@ -81,7 +80,7 @@ class _NotificationPageState extends State<NotificationPage> {
                     style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(
-                    'เบอร์โทร: $phone',
+                    'เบอรโทร $phone',
                     style: const TextStyle(fontSize: 11.0),
                   ),
                   Text(
@@ -100,13 +99,7 @@ class _NotificationPageState extends State<NotificationPage> {
               height: 100.0,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigate to more details (dummy action here)
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => DetailsPage(),
-                    ),
-                  );
+                  // รองรับการทำงานเมื่อกดปุ่ม
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 46, 210, 51),
@@ -126,22 +119,6 @@ class _NotificationPageState extends State<NotificationPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// Sample DetailsPage for navigation
-class DetailsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('รายละเอียดเพิ่มเติม'),
-        backgroundColor: const Color(0xFFFFC074),
-      ),
-      body: Center(
-        child: Text('รายละเอียดเพิ่มเติมที่นี่'), // Placeholder content
       ),
     );
   }

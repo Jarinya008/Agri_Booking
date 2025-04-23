@@ -5,35 +5,46 @@ import 'package:app_agri_booking/pages/General/HomeUserAll.dart';
 import 'package:app_agri_booking/pages/General/Toobar.dart';
 import 'package:flutter/material.dart';
 
-class MePage extends StatelessWidget {
-  final dynamic userData; // รับข้อมูลที่ส่งมา
+class MePage extends StatefulWidget {
+  final dynamic userData;
 
   const MePage({super.key, required this.userData});
 
   @override
-  Widget build(BuildContext context) {
-    print("เข้าสู่ระบบแล้วนะเย้ๆๆๆๆ");
-    print(this.userData);
-    print("----------------------------------------");
+  State<MePage> createState() => _MePageState();
+}
 
+class _MePageState extends State<MePage> {
+  late dynamic userData;
+
+  @override
+  void initState() {
+    super.initState();
+    userData = widget.userData;
+
+    print("เข้าสู่ระบบแล้วนะเย้ๆๆๆๆ");
+    print(userData);
+    print("----------------------------------------");
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 255, 240, 194),
+      backgroundColor: const Color.fromARGB(255, 255, 240, 194),
       body: SingleChildScrollView(
         child: Column(
           children: [
             GestureDetector(
               onTap: () {
-                // ส่งข้อมูล userData ไปยัง ToobarC
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        ToobarC(value: 0, userData: userData), // ส่งข้อมูล
+                    builder: (context) => ToobarC(value: 0, userData: userData),
                   ),
                 );
               },
               child: Container(
-                width: double.infinity, // กำหนดความกว้างให้เต็มหน้าจอ
+                width: double.infinity,
                 padding: const EdgeInsets.all(16.0),
                 decoration: const BoxDecoration(
                   color: Color(0xFFFFC074),
@@ -44,35 +55,29 @@ class MePage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    // รูปภาพโปรไฟล์จาก URL
                     const SizedBox(height: 55),
                     CircleAvatar(
                       radius: 90,
                       backgroundImage: NetworkImage(
                         userData['image'] ??
-                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4e9fWazRAThnhmWBrNW7gfn8E1vF8vtrtzY9iMHe_QZsjmC-gzxv-zMDMLvYaHW5cv9o&usqp=CAU', // ใช้ URL จาก userData หรือ URL พื้นฐาน
+                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT4e9fWazRAThnhmWBrNW7gfn8E1vF8vtrtzY9iMHe_QZsjmC-gzxv-zMDMLvYaHW5cv9o&usqp=CAU',
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // ชื่อและเบอร์โทร
                     Text(
-                      userData['username'] ??
-                          'ไม่มีชื่อ', // ใช้ข้อมูลจาก userData
+                      userData['username'] ?? 'ไม่มีชื่อ',
                       style: const TextStyle(
                           fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      userData['phone'] ??
-                          'ไม่มีเบอร์โทร', // ใช้ข้อมูลจาก userData
+                      userData['phone'] ?? 'ไม่มีเบอร์โทร',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
               ),
             ),
-
             const SizedBox(height: 15),
-            // กล่องเมนูตรงกลาง
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
               padding: const EdgeInsets.all(10.0),
@@ -94,7 +99,6 @@ class MePage extends StatelessWidget {
                     style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  // ไอคอนเมนู
                   GridView.count(
                     shrinkWrap: true,
                     crossAxisCount: 2,
@@ -107,7 +111,6 @@ class MePage extends StatelessWidget {
                         'แก้ไขข้อมูลส่วนตัว',
                         'https://cdn-icons-png.flaticon.com/512/10629/10629723.png',
                         () {
-                          // กดแล้วทำอะไร
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -120,7 +123,6 @@ class MePage extends StatelessWidget {
                         'แก้ไขข้อมูลไร่นา',
                         'https://img.freepik.com/premium-vector/edit-map-icon_933463-4534.jpg',
                         () {
-                          // กดแล้วทำอะไร
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -135,13 +137,10 @@ class MePage extends StatelessWidget {
                         'ออกจากระบบ',
                         'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR_OSwHRWaHZlUQ3AiRMMhf5Aqg9ZcnvBsBuUEbuAXu_jIESdvq',
                         () {
-                          // กดแล้วทำอะไร
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const Toobar(
-                                      value: 0,
-                                    )),
+                                builder: (context) => const Toobar(value: 0)),
                           );
                         },
                       ),
@@ -149,7 +148,7 @@ class MePage extends StatelessWidget {
                         'สลับโหมดผู้ใช้',
                         'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQDkOOsZmX7Xxaf5NerCTSNekJcBHyzzBB6MtPI2KotTJSzLaPx',
                         () {
-                          // กดแล้วทำอะไร
+                          // เพิ่มฟังก์ชันสลับโหมดที่นี่ในอนาคต
                         },
                       ),
                     ],
@@ -160,7 +159,6 @@ class MePage extends StatelessWidget {
           ],
         ),
       ),
-      // เพิ่ม ToobarC ที่ด้านล่างของหน้า
     );
   }
 
@@ -172,7 +170,7 @@ class MePage extends StatelessWidget {
         children: [
           Image.network(
             imageUrl,
-            height: 60, // ขนาดของไอคอน
+            height: 60,
           ),
           const SizedBox(height: 15),
           Text(

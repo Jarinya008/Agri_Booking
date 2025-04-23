@@ -3,8 +3,8 @@ import 'package:app_agri_booking/config.dart';
 import 'package:app_agri_booking/model/GetAllTracts.dart';
 import 'package:app_agri_booking/pages/Client/Detail.dart';
 import 'package:app_agri_booking/pages/Client/Search.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 
 class HomeClientPage extends StatefulWidget {
@@ -13,35 +13,52 @@ class HomeClientPage extends StatefulWidget {
   const HomeClientPage({super.key, required this.userData});
 
   @override
-  _HomeClientPageState createState() => _HomeClientPageState();
+  State<HomeClientPage> createState() => _HomeClientPageState();
 }
 
 class _HomeClientPageState extends State<HomeClientPage> {
   int? selectedFarmId;
+  List<Map<String, dynamic>> farms = [];
 
-  Future<List<GetAllTracts>> fetchData() async {
-    final response = await http.get(Uri.parse(ApiConfig.getAllTractsList));
-    if (response.statusCode == 200) {
-      return getAllTractsFromJson(response.body);
-    } else {
-      throw Exception('Failed to load data');
-    }
+  @override
+  void initState() {
+    super.initState();
+    fetchFarms();
   }
 
-  Future<List<Map<String, dynamic>>> fetchFarms() async {
+  Future<void> fetchFarms() async {
     final response = await http.get(
       Uri.parse(
         "http://projectnodejs.thammadalok.com/AGribooking/client/farms/${widget.userData['mid']}",
       ),
     );
+
     if (response.statusCode == 200) {
       final decodedData = json.decode(response.body);
-      return (decodedData['farms'] as List)
-          .map(
-              (farms) => {'fid': farms['fid'], 'name_farm': farms['name_farm']})
+      final farmList = (decodedData['farms'] as List)
+          .map((farm) => {
+                'fid': farm['fid'],
+                'name_farm': farm['name_farm'],
+              })
           .toList();
+      setState(() {
+        farms = farmList;
+        if (farms.isNotEmpty) {
+          selectedFarmId = farms.first['fid'];
+        }
+      });
     } else {
       throw Exception("Failed to load farms");
+    }
+  }
+
+  Future<List<GetAllTracts>> fetchData() async {
+    final response = await http.get(Uri.parse(ApiConfig.getAllTractsList));
+
+    if (response.statusCode == 200) {
+      return getAllTractsFromJson(response.body);
+    } else {
+      throw Exception('Failed to load data');
     }
   }
 
@@ -81,9 +98,7 @@ class _HomeClientPageState extends State<HomeClientPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => SearchPage(
-                            mid: widget.userData['mid'],
-                            userData: {},
-                          ),
+                              mid: widget.userData['mid'], userData: {}),
                         ),
                       );
                     },
@@ -101,9 +116,8 @@ class _HomeClientPageState extends State<HomeClientPage> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => SearchPage(
-                        mid: widget.userData['mid'],
-                        userData: widget.userData,
-                      ),
+                          mid: widget.userData['mid'],
+                          userData: widget.userData),
                     ),
                   );
                 },
@@ -140,42 +154,28 @@ class _HomeClientPageState extends State<HomeClientPage> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: fetchFarms(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text("ไม่มีข้อมูลไร่นา");
-                  }
-
-                  List<Map<String, dynamic>> farms = snapshot.data!;
-                  selectedFarmId ??= farms.first['fid'];
-
-                  return DropdownButtonFormField<int>(
-                    value: selectedFarmId,
-                    items: farms.map((farm) {
-                      return DropdownMenuItem<int>(
-                        value: farm['fid'],
-                        child: Text(farm['name_farm'] ?? "ไม่ทราบชื่อ"),
-                      );
-                    }).toList(),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedFarmId = newValue;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'เลือกไร่นาของคุณ',
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.white,
+              child: farms.isEmpty
+                  ? const CircularProgressIndicator()
+                  : DropdownButtonFormField<int>(
+                      value: selectedFarmId,
+                      items: farms.map((farm) {
+                        return DropdownMenuItem<int>(
+                          value: farm['fid'],
+                          child: Text(farm['name_farm'] ?? "ไม่ทราบชื่อ"),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedFarmId = newValue;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'เลือกไร่นาของคุณ',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
                     ),
-                  );
-                },
-              ),
             ),
             const SizedBox(height: 10),
             const Padding(
@@ -209,7 +209,8 @@ class _HomeClientPageState extends State<HomeClientPage> {
                             horizontal: 15.0, vertical: 8.0),
                         child: Card(
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0)),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                           elevation: 5.0,
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -227,6 +228,8 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                           ? tract.image
                                           : 'https://www.forest.go.th/training/wp-content/uploads/sites/17/2015/03/noimages.png',
                                       fit: BoxFit.cover,
+                                      width: double.infinity,
+                                      height: double.infinity,
                                     ),
                                   ),
                                 ),
@@ -239,9 +242,8 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                       Text(
                                         tract.nameTract,
                                         style: const TextStyle(
-                                          fontSize: 15.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                            fontSize: 15.0,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text(
                                         'ประเภทรถ : ${tract.typeNameTract}',
@@ -253,8 +255,10 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                       ),
                                       Row(
                                         children: [
-                                          const Text('ราคา : ',
-                                              style: TextStyle(fontSize: 11.0)),
+                                          const Text(
+                                            'ราคา : ',
+                                            style: TextStyle(fontSize: 11.0),
+                                          ),
                                           Text(
                                             tract.price,
                                             style: const TextStyle(
@@ -265,8 +269,10 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                           ),
                                         ],
                                       ),
-                                      const Text('ระยะทาง : 50 กิโลเมตร',
-                                          style: TextStyle(fontSize: 11.0)),
+                                      Text(
+                                        'ระยะทาง : 50 กิโลเมตร',
+                                        style: const TextStyle(fontSize: 11.0),
+                                      ),
                                       const SizedBox(height: 10),
                                       Align(
                                         alignment: Alignment.centerRight,
@@ -275,7 +281,7 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                           height: 35.0,
                                           child: ElevatedButton(
                                             onPressed: () {
-                                              int fidToSend =
+                                              final fidToSend =
                                                   selectedFarmId ?? 0;
                                               Navigator.push(
                                                 context,
@@ -306,7 +312,7 @@ class _HomeClientPageState extends State<HomeClientPage> {
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      )
                                     ],
                                   ),
                                 ),

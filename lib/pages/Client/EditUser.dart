@@ -1,40 +1,288 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:app_agri_booking/pages/Client/Me.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditUser extends StatefulWidget {
-  const EditUser({super.key});
+  final dynamic userData;
+  final String imgbbApiKey =
+      "a051ad7a04e7037b74d4d656e7d667e9"; // 🔑 ใส่ API Key ที่ได้จาก ImgBB
+  const EditUser({super.key, required this.userData});
 
   @override
   State<EditUser> createState() => _EditUserState();
 }
 
 class _EditUserState extends State<EditUser> {
+  late TextEditingController passwordController;
+  late TextEditingController imageController;
   late TextEditingController nameController;
   late TextEditingController emailController;
   late TextEditingController phoneController;
   late TextEditingController contactController;
   late TextEditingController addressController;
+  double? lat;
+  double? lng;
+  int? mid;
+  int? mtype;
+  GoogleMapController? mapController;
+  Marker? _marker;
 
   @override
   void initState() {
     super.initState();
-    // ข้อมูลจำลอง
-    nameController = TextEditingController(text: 'สมชาย ใจดี');
-    emailController = TextEditingController(text: 'somchai@example.com');
-    phoneController = TextEditingController(text: '0812345678');
-    contactController =
-        TextEditingController(text: 'ติดต่อญาติใกล้ชิด 0899999999');
-    addressController = TextEditingController(
-        text: '123/4 ถนนสุขใจ แขวงสุขสันต์ เขตบางกรวย กรุงเทพฯ');
+
+    // กำหนดค่าเริ่มต้นให้ TextEditingController
+
+    nameController = TextEditingController(text: widget.userData['username']);
+    passwordController =
+        TextEditingController(text: widget.userData['password']);
+    emailController = TextEditingController(text: widget.userData['email']);
+    phoneController = TextEditingController(text: widget.userData['phone']);
+    contactController = TextEditingController(text: widget.userData['contact']);
+    addressController = TextEditingController(text: widget.userData['address']);
+    imageController = TextEditingController(text: 'assets/images/Logo.png');
+    mtype = widget.userData['mtype'];
+    mid = widget.userData['mid'];
+    // ตรวจสอบและตั้งค่าพิกัดเริ่มต้น
+    lat = (widget.userData['lat'] as num).toDouble();
+    lng = (widget.userData['lng'] as num).toDouble();
+
+    _marker = Marker(
+      markerId: const MarkerId('selected_location'),
+      position: LatLng(lat!, lng!),
+    );
   }
 
   @override
   void dispose() {
+    // เคลียร์ค่าของ TextEditingController เพื่อป้องกัน memory leak
     nameController.dispose();
     emailController.dispose();
     phoneController.dispose();
     contactController.dispose();
     addressController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      setState(() {
+        imageController.text = image.path; // อัปเดตเส้นทางของภาพที่เลือก
+      });
+
+      await _uploadImageToImgBB(); // ⬅️ อัปโหลดภาพไป ImgBB ทันที
+    }
+  }
+
+  Future<void> _openMapDialog() async {
+    LatLng? selectedLocation = await showDialog<LatLng>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('เลือกตำแหน่ง'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: StatefulBuilder(
+              builder: (context, setDialogState) {
+                LatLng initialLocation =
+                    LatLng(lat ?? 13.7563, lng ?? 100.5018);
+                return GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: initialLocation,
+                    zoom: 12,
+                  ),
+                  mapType: MapType.normal,
+                  onMapCreated: (GoogleMapController controller) {
+                    mapController = controller;
+                  },
+                  onTap: (LatLng location) {
+                    setDialogState(() {
+                      lat = location.latitude;
+                      lng = location.longitude;
+                      _marker = Marker(
+                        markerId: const MarkerId('selected_location'),
+                        position: location,
+                      );
+                    });
+                  },
+                  markers: _marker != null ? {_marker!} : {},
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('ยกเลิก'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, LatLng(lat!, lng!));
+              },
+              child: const Text('ยืนยัน'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (selectedLocation != null) {
+      setState(() {
+        lat = selectedLocation.latitude;
+        lng = selectedLocation.longitude;
+      });
+    }
+  }
+
+  // Future<void> _updateUserData() async {
+  //   const String apiUrl =
+  //       "http://projectnodejs.thammadalok.com/AGribooking/member/edit";
+
+  //   // สร้างข้อมูล JSON ที่จะส่ง
+  //   final Map<String, dynamic> data = {
+  //     "mid": mid,
+  //     "username": nameController.text,
+  //     "newEmail": emailController.text,
+  //     "password": passwordController.text,
+  //     "phone": phoneController.text,
+  //     "image": imageController.text,
+  //     "contact": contactController.text,
+  //     "address": addressController.text,
+  //     "lat": lat,
+  //     "lng": lng,
+  //     "mtype": mtype,
+  //   };
+
+  //   final response = await http.put(
+  //     Uri.parse(apiUrl), // ใช้ apiUrl ที่ถูกต้อง
+  //     headers: {"Content-Type": "application/json"},
+  //     body: json.encode(data), // ส่งข้อมูลที่เป็น JSON
+  //   );
+  //   if (response.statusCode == 200) {
+  //     print('ข้อมูลถูกอัปเดตแล้ว');
+  //     // นำทางไปยังหน้า MePage
+  //     Navigator.pushReplacement(
+  //       context,
+  //       MaterialPageRoute(
+  //           builder: (context) =>
+  //               MePage(userData: widget.userData)), // ปรับให้เป็นหน้าที่ต้องการ
+  //     );
+  //   } else {
+  //     print('เกิดข้อผิดพลาดในการอัปเดตข้อมูล');
+  //   }
+  // }
+
+  Future<void> _showConfirmDialog() async {
+    // แสดง Dialog เพื่อยืนยันการแก้ไขข้อมูลส่วนตัว
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('ยืนยันการแก้ไขข้อมูล'),
+        content: const Text('คุณต้องการแก้ไขข้อมูลส่วนตัวหรือไม่?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, false); // ผู้ใช้เลือกไม่ทำการแก้ไข
+            },
+            child: const Text('ยกเลิก'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, true); // ผู้ใช้เลือกทำการแก้ไข
+            },
+            child: const Text('ยืนยัน'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      // หากผู้ใช้ยืนยันให้เรียกฟังก์ชัน _updateUserData
+      await _updateUserData();
+    } else {
+      print('การแก้ไขข้อมูลถูกยกเลิก');
+    }
+  }
+
+  Future<void> _updateUserData() async {
+    const String apiUrl =
+        "http://projectnodejs.thammadalok.com/AGribooking/member/edit";
+
+    // สร้างข้อมูล JSON ที่จะส่ง
+    final Map<String, dynamic> data = {
+      "mid": mid,
+      "username": nameController.text,
+      "newEmail": emailController.text,
+      "password": passwordController.text,
+      "phone": phoneController.text,
+      "image": imageController.text,
+      "contact": contactController.text,
+      "address": addressController.text,
+      "lat": lat,
+      "lng": lng,
+      "mtype": mtype,
+    };
+
+    final response = await http.put(
+      Uri.parse(apiUrl), // ใช้ apiUrl ที่ถูกต้อง
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(data), // ส่งข้อมูลที่เป็น JSON
+    );
+
+    if (response.statusCode == 200) {
+      print('ข้อมูลถูกอัปเดตแล้ว');
+      // นำทางไปยังหน้า MePage และแสดงข้อมูลที่อัปเดต
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              MePage(userData: widget.userData), // ปรับให้เป็นหน้าที่ต้องการ
+        ),
+      );
+    } else {
+      print('เกิดข้อผิดพลาดในการอัปเดตข้อมูล');
+    }
+  }
+
+  Future<void> _uploadImageToImgBB() async {
+    if (imageController.text.isEmpty) {
+      print("❌ กรุณาเลือกภาพก่อนอัปโหลด");
+      return;
+    }
+
+    File imageFile = File(imageController.text);
+    List<int> imageBytes = await imageFile.readAsBytes();
+    String base64Image = base64Encode(imageBytes);
+
+    final response = await http.post(
+      Uri.parse("https://api.imgbb.com/1/upload"),
+      body: {
+        "key": widget.imgbbApiKey,
+        "image": base64Image,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var jsonResponse = jsonDecode(response.body);
+      String imageUrl = jsonResponse["data"]["url"];
+      print("✅ อัปโหลดสำเร็จ: $imageUrl");
+
+      setState(() {
+        imageController.text = imageUrl; // ใช้ URL ที่อัปโหลดแล้ว
+      });
+    } else {
+      print("❌ อัปโหลดไม่สำเร็จ: ${response.body}");
+    }
   }
 
   @override
@@ -45,7 +293,9 @@ class _EditUserState extends State<EditUser> {
         backgroundColor: Colors.orange[100],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
       body: Container(
@@ -57,14 +307,28 @@ class _EditUserState extends State<EditUser> {
               children: [
                 Stack(
                   alignment: Alignment.bottomRight,
-                  children: const [
+                  children: [
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: AssetImage('assets/images/Logo.png'),
+                      backgroundImage: (imageController.text.isNotEmpty &&
+                              imageController.text.startsWith("http"))
+                          ? NetworkImage(imageController
+                              .text) // ✅ ใช้รูปจาก URL ที่อัปโหลดไป ImgBB หรือดึงมาจากฐานข้อมูล
+                          : (widget.userData['image'] != null &&
+                                  widget.userData['image']
+                                      .toString()
+                                      .isNotEmpty)
+                              ? NetworkImage(widget.userData[
+                                  'image']) // ✅ ใช้รูปจากฐานข้อมูลถ้ามี
+                              : const AssetImage('assets/images/Logo.png')
+                                  as ImageProvider, // ✅ ไม่มีรูป ให้ใช้โลโก้เริ่มต้น
                     ),
-                    CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: Icon(Icons.edit, color: Colors.black),
+                    GestureDetector(
+                      onTap: _pickImage, // ⬅️ กดแล้วเลือกภาพใหม่
+                      child: const CircleAvatar(
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.edit, color: Colors.black),
+                      ),
                     ),
                   ],
                 ),
@@ -78,41 +342,41 @@ class _EditUserState extends State<EditUser> {
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       children: [
-                        _buildTextField('ชื่อผู้ใช้',
-                            TextEditingController(text: 'สมชาย ใจดี')),
-                        _buildTextField('Email',
-                            TextEditingController(text: 'somchai@example.com')),
-                        _buildTextField('เบอร์โทร',
-                            TextEditingController(text: '0812345678')),
+                        _buildTextField('ชื่อผู้ใช้', nameController, true),
+                        _buildTextField('Email', emailController, true),
+                        _buildTextField('เบอร์โทร', phoneController, true),
                         _buildTextField(
-                            'ข้อมูลการติดต่อเพิ่มเติม',
-                            TextEditingController(
-                                text: 'ติดต่อญาติใกล้ชิด 0899999999'),
+                            'ข้อมูลการติดต่อเพิ่มเติม', contactController, true,
                             maxLines: 3),
                         const SizedBox(height: 8.0),
-                        ElevatedButton.icon(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.yellow,
-                          ),
-                          icon: const Icon(Icons.location_on,
-                              color: Colors.black),
-                          label: const Text('GPS',
-                              style: TextStyle(color: Colors.black)),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed:
+                                    _openMapDialog, // เรียกใช้ฟังก์ชันเมื่อกดปุ่ม
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.yellow,
+                                ),
+                                icon: const Icon(Icons.location_on,
+                                    color: Colors.black),
+                                label: const Text('GPS',
+                                    style: TextStyle(color: Colors.black)),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 8.0),
-                        _buildTextField(
-                            'ที่อยู่',
-                            TextEditingController(
-                                text:
-                                    '123/4 ถนนสุขใจ แขวงสุขสันต์ เขตบางกรวย กรุงเทพฯ'),
+                        _buildTextField('ที่อยู่', addressController, true,
                             maxLines: 3),
                         const SizedBox(height: 16.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                               ),
@@ -120,7 +384,10 @@ class _EditUserState extends State<EditUser> {
                                   style: TextStyle(color: Colors.white)),
                             ),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                _showConfirmDialog();
+                                // เพิ่มฟังก์ชันบันทึกข้อมูลที่นี่
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                               ),
@@ -141,18 +408,81 @@ class _EditUserState extends State<EditUser> {
     );
   }
 
-  static Widget _buildTextField(String label, TextEditingController controller,
+  Widget _buildTextField(
+      String label, TextEditingController controller, bool isEditable,
       {int maxLines = 1}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
+        readOnly: !isEditable,
+        maxLines: maxLines,
         decoration: InputDecoration(
           labelText: label,
           border: const OutlineInputBorder(),
         ),
-        maxLines: maxLines,
       ),
+    );
+  }
+
+  Widget _buildGPSButton() {
+    return Center(
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.yellow,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: _openMapDialog,
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.location_on, color: Colors.black),
+              SizedBox(width: 5),
+              Text('GPS',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomButtons(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('ยกเลิก', style: TextStyle(fontSize: 16)),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: ElevatedButton(
+            onPressed: () {
+              _showConfirmDialog; // Call this to update the user data
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            child: const Text('ยืนยัน', style: TextStyle(color: Colors.white)),
+          ),
+        ),
+      ],
     );
   }
 }

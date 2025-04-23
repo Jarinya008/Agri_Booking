@@ -1,15 +1,14 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:geolocator/geolocator.dart';
 
 class InsertFarmPage extends StatefulWidget {
   final int mid;
 
-  const InsertFarmPage({
-    super.key,
-    required this.mid,
-    required Map<String, dynamic> userData,
-  });
+  const InsertFarmPage(
+      {super.key, required this.mid, required Map<String, dynamic> userData});
 
   @override
   _InsertFarmPageState createState() => _InsertFarmPageState();
@@ -33,6 +32,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     _getCurrentLocation();
   }
 
+  // ฟังก์ชันดึงตำแหน่งปัจจุบันของผู้ใช้
   Future<void> _getCurrentLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -44,12 +44,14 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
         lngController.text = lng.toString();
       });
     } catch (e) {
+      print("🚨 Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("ไม่สามารถดึงตำแหน่งปัจจุบันได้")),
       );
     }
   }
 
+  // ฟังก์ชันเปิดแผนที่
   Future<void> _openMapDialog() async {
     LatLng? selectedLocation = await showDialog<LatLng>(
       context: context,
@@ -61,8 +63,8 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
             height: 400,
             child: StatefulBuilder(
               builder: (context, setDialogState) {
-                LatLng initialLocation =
-                    LatLng(lat ?? 13.7563, lng ?? 100.5018);
+                LatLng initialLocation = LatLng(lat ?? 13.7563,
+                    lng ?? 100.5018); // ตำแหน่งปัจจุบันของผู้ใช้
                 return GoogleMap(
                   initialCameraPosition: CameraPosition(
                     target: initialLocation,
@@ -89,13 +91,19 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text('ยกเลิก'),
             ),
             TextButton(
               onPressed: () {
                 if (lat != null && lng != null) {
                   Navigator.pop(context, LatLng(lat!, lng!));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("กรุณาเลือกตำแหน่งบนแผนที่")),
+                  );
                 }
               },
               child: const Text('ยืนยัน'),
@@ -115,6 +123,51 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     }
   }
 
+  // ฟังก์ชันส่งข้อมูลไปยัง API
+  Future<void> _submitFarm() async {
+    final url =
+        "http://projectnodejs.thammadalok.com/AGribooking/client/insert/farm";
+
+    final Map<String, dynamic> farmData = {
+      "name_farm": nameController.text,
+      "tumbol": tumbolController.text,
+      "district": districtController.text,
+      "province": provinceController.text,
+      "detail": detailController.text,
+      "lat": lat,
+      "lng": lng,
+      "mid": widget.mid
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(farmData),
+      );
+
+      final responseData = jsonDecode(response.body);
+      print("🔹 API Response: $responseData");
+
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("เพิ่มฟาร์มสำเร็จ!")),
+        );
+        Navigator.pop(context, widget.mid); // ส่ง mid กลับไป
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("เกิดข้อผิดพลาด: ${responseData['message']}")),
+        );
+      }
+    } catch (e) {
+      print("🚨 Error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("เกิดข้อผิดพลาดในการเชื่อมต่อ")),
+      );
+    }
+  }
+
+  // ฟังก์ชันสร้าง UI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,6 +195,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     );
   }
 
+  // ฟังก์ชันสร้างฟอร์ม text field
   Widget _buildTextField(String label, TextEditingController controller,
       {int maxLines = 1, bool readOnly = false}) {
     return Padding(
@@ -171,6 +225,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     );
   }
 
+  // ปุ่มเลือกตำแหน่ง GPS
   Widget _buildGPSButton() {
     return Center(
       child: SizedBox(
@@ -200,6 +255,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
     );
   }
 
+  // ปุ่มยืนยันการเพิ่มฟาร์ม
   Widget _buildSubmitButton() {
     return Row(
       children: [
@@ -228,12 +284,7 @@ class _InsertFarmPageState extends State<InsertFarmPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: () {
-              // ไม่ทำอะไรเพราะไม่มีการเชื่อมฐานข้อมูล
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("ฟอร์มบันทึกเฉพาะในแอปเท่านั้น")),
-              );
-            },
+            onPressed: _submitFarm,
             child: const Text("เพิ่มไร่นา", style: TextStyle(fontSize: 16)),
           ),
         ),
